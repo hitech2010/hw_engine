@@ -19,6 +19,9 @@
 #define HW_ENGINE_ID	"hw_engine"
 #define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
 
+unsigned int reg_base = 0;
+unsigned int fd = -1;
+
 /*-------------------------The Engine Digests-------------------------*/
 
 /* md5 */

@@ -2,6 +2,10 @@
 #ifndef HEADER_COMMON_H
 #define HEADER_COMMON_H
 
+#define CRYPTOP_BASE 0xC0900000
+#define CRYPTOP_SIZE 0x80000	//512KB
+#define CRYPTOP_INTR 0xee600004
+
 /* Use this when declaring EVP_CIPHER structs */
 #define DECLARE_AES_EVP(ksize, lmode, umode)	\
 static const EVP_CIPHER aes_##ksize##_##lmode = {	\
