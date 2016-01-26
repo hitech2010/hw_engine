@@ -14,6 +14,11 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "common.h"
 
 #define HW_ENGINE_ID	"hw_engine"
@@ -148,6 +153,23 @@ extern void engine_rand_init(RAND_METHOD *);
 static int cryptop_init(ENGINE *e)
 {
   int i;
+
+  fd = open("/dev/mem", O_RDWR | O_SYNC);
+  if (fd < 0) {
+    fprintf(stderr, "Can't open /dev/mem\n");
+    return 0;
+  }
+
+  reg_base = (unsigned int) mmap(NULL, CRYPTOP_SIZE, PROT_READ | PROT_WRITE |
+				 MAP_FIXED, MAP_SHARED, fd, CRYPTOP_BASE);
+  if (reg_base == (unsigned int) MAP_FAILED) {
+    reg_base = 0;
+    fprintf(stderr, "mmap cryptop error\n");
+    close(fd);
+    fd = -1;
+    return 0;
+  }
+
   /* digests */
   engine_md5_init(&digest_md5);
   engine_sha1_init(&digest_sha1);
