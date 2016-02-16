@@ -8,6 +8,7 @@
 /compile
 /config.guess
 /config.h.in
+/config.status
 /config.sub
 /configure
 /depcomp
@@ -22,5 +23,6 @@
 /rfc1321/.dirstamp
 /stamp-h1
 /libtool
+/Makefile
 *.la
 *.lo
