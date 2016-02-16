@@ -1,0 +1,26 @@
+# Ignore emacs backup files
+*~
+
+# Ignore all things produced by autoreconf
+/Makefile.in
+/aclocal.m4
+/autom4te.cache/
+/compile
+/config.guess
+/config.h.in
+/config.sub
+/configure
+/depcomp
+/install-sh
+/ltmain.sh
+/missing
+/.libs/
+/.deps/
+/config.log
+/rfc1321/.deps/
+/rfc1321/.libs/
+/rfc1321/.dirstamp
+/stamp-h1
+/libtool
+*.la
+*.lo
