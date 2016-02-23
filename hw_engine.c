@@ -4,6 +4,7 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
+#include "common.h"
 
 #define HW_ENGINE_ID	"hw_engine"
 #define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
@@ -53,6 +54,68 @@ static int digests(ENGINE *e, const EVP_MD **digest,
   return ok;
 }
 
+/*-------------------------The Engine Ciphers-------------------------*/
+
+/* AES */
+static EVP_CIPHER aes_128_ecb;
+static EVP_CIPHER aes_128_cbc;
+static EVP_CIPHER aes_128_ofb;
+static EVP_CIPHER aes_128_cfb;
+extern void engine_cipher_init(EVP_CIPHER *cipher, int type);
+
+static int cipher_nids[] = {  // 
+// AES 128 bits, ecb, cbc, ofb, cfb, ctr
+  NID_aes_128_ecb,
+  NID_aes_128_cbc,
+  NID_aes_128_ofb128,
+  NID_aes_128_cfb128,
+#if 0	// TODO: add the followings
+  NID_aes_128_ctr,
+// AES 192 bits, ecb, cbc, ofb, cfb
+  NID_aes_192_ecb,
+  NID_aes_192_cbc,
+  NID_aes_192_ofb128,
+  NID_aes_192_cfb128,
+  NID_aes_192_ctr,
+// AES 192 bits, ecb, cbc, ofb, cfb
+  NID_aes_256_ecb,
+  NID_aes_256_cbc,
+  NID_aes_256_ofb128,
+  NID_aes_256_cfb128,
+  NID_aes_256_ctr,
+#endif
+  0
+};
+
+static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
+		   const int **nids, int nid)
+{
+  if (!cipher) {
+    *nids = cipher_nids;
+    return (sizeof(cipher_nids) - 1) / sizeof(digest_nids[0]);
+  }
+
+  switch (nid) {
+  case NID_aes_128_ecb:
+    *cipher = &aes_128_ecb;
+    break;
+  case NID_aes_128_cbc:
+    *cipher = &aes_128_cbc;
+    break;
+  case NID_aes_128_ofb128:
+    *cipher = &aes_128_ofb;
+    break;
+  case NID_aes_128_cfb128:
+    *cipher = &aes_128_cbc;
+    break;
+  default:
+    *cipher = NULL;
+    return 0;
+  }
+
+  return 1;
+}
+
 /* 
  * This is the function used by ENGINE_set_init_function.
  * We now use the OPENSSL builtin implementations. Should be
@@ -60,10 +123,17 @@ static int digests(ENGINE *e, const EVP_MD **digest,
 */
 static int cryptop_init(ENGINE *e)
 {
+  int i;
   /* digests */
   engine_md5_init(&digest_md5);
   engine_sha1_init(&digest_sha1);
   engine_sha256_init(&digest_sha256);
+
+  /* ciphers */
+  engine_cipher_init(&aes_128_ecb, HW_AES_128_ECB);
+  engine_cipher_init(&aes_128_cbc, HW_AES_128_CBC);
+  engine_cipher_init(&aes_128_ofb, HW_AES_128_CFB);
+  engine_cipher_init(&aes_128_cfb, HW_AES_128_OFB);
 
   return 1;
 };
@@ -73,7 +143,8 @@ static int cryptop_bind_helper(ENGINE *e)
   if (!ENGINE_set_id(e, HW_ENGINE_ID) ||
       !ENGINE_set_name(e, HW_ENGINE_NAME) ||
       !ENGINE_set_init_function(e, cryptop_init) ||
-      !ENGINE_set_digests(e, digests)) {
+      !ENGINE_set_digests(e, digests) ||
+      !ENGINE_set_ciphers(e, ciphers)) {
     return 0;
   }
 
