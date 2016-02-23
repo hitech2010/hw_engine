@@ -3,6 +3,7 @@
 
 # Ignore all things produced by autoreconf
 /Makefile.in
+/Makefile
 /aclocal.m4
 /autom4te.cache/
 /compile
@@ -23,7 +24,6 @@ config.status
 /rfc1321/.dirstamp
 /stamp-h1
 /libtool
-Makefile
 tags
 *.la
 *.lo
