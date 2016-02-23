@@ -1,3 +1,13 @@
+/*
+ * hw_engine.c
+ * Originally written by Zhao Junwang<zhjwpku@gmail.com> for the cryptop 
+ * safemodule.
+ * This project implements a engine accelerate the following algorithms:
+ * 	SHA1/SHA256
+ * 	AES128/AES192/AES256
+ * 	RSA/ECC
+ */
+
 #include <stdio.h>
 #include <string.h>
 

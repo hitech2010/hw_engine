@@ -1,3 +1,9 @@
+/*
+ * hw_aes.c
+ * Originally written by Zhao Junwang<zhjwpku@gmail.com> for the cryptop 
+ * safemodule.
+ */
+
 #include <openssl/evp.h>
 #include <string.h>
 #include <openssl/aes.h>

@@ -1,3 +1,10 @@
+/*
+ * hw_sha.c
+ * Originally written by Zhao Junwang<zhjwpku@gmail.com> for the cryptop 
+ * safemodule.
+ * This project implements a engine accelerate the following algorithms:
+ */
+
 #include <openssl/evp.h>
 #include <string.h>
 #include <openssl/sha.h>

@@ -1,3 +1,9 @@
+/*
+ * hw_rsa.c
+ * Originally written by Zhao Junwang<zhjwpku@gmail.com> for the cryptop 
+ * safemodule.
+ */
+
 #include <openssl/evp.h>
 #include <string.h>
 #include <openssl/rsa.h>
