@@ -1,9 +1,6 @@
 /* This define in this file could be included by some files */
-
-#define HW_AES_128_ECB	1
-#define HW_AES_128_CBC	2
-#define HW_AES_128_CFB	3
-#define HW_AES_128_OFB	4
+#ifndef HEADER_COMMON_H
+#define HEADER_COMMON_H
 
 /* Use this when declaring EVP_CIPHER structs */
 #define DECLARE_AES_EVP(ksize, lmode, umode)	\
@@ -22,3 +19,10 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
   NULL,				  \
   NULL				  \
 }
+
+#define HW_AES_128_ECB	1
+#define HW_AES_128_CBC	2
+#define HW_AES_128_CFB	3
+#define HW_AES_128_OFB	4
+
+#endif
