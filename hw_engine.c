@@ -66,8 +66,8 @@ static int digests(ENGINE *e, const EVP_MD **digest,
   return ok;
 }
 
-static const char *engine_id = "emd5";
-static const char *engine_name = "A simple md5 engine for demonstration purposes";
+static const char *engine_id = "hw_engine";
+static const char *engine_name = "An OpenSSL engine for cryptop";
 static int bind(ENGINE *e, const char *id)
 {
   int ret = 0;

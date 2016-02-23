@@ -122,10 +122,10 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-libemd5_la_LIBADD =
+libhw_engine_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libemd5_la_OBJECTS = e_md5.lo rfc1321/md5c.lo
-libemd5_la_OBJECTS = $(am_libemd5_la_OBJECTS)
+am_libhw_engine_la_OBJECTS = hw_engine.lo rfc1321/md5c.lo
+libhw_engine_la_OBJECTS = $(am_libhw_engine_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
@@ -164,8 +164,8 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libemd5_la_SOURCES)
-DIST_SOURCES = $(libemd5_la_SOURCES)
+SOURCES = $(libhw_engine_la_SOURCES)
+DIST_SOURCES = $(libhw_engine_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -336,8 +336,8 @@ top_srcdir = .
 AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README.md rfc1321/global.h rfc1321/md5.h
-pkglib_LTLIBRARIES = libemd5.la
-libemd5_la_SOURCES = e_md5.c rfc1321/md5c.c
+pkglib_LTLIBRARIES = libhw_engine.la
+libhw_engine_la_SOURCES = hw_engine.c rfc1321/md5c.c
 pkgexecdir = /usr/share/engine-zjw/libexec
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -437,8 +437,8 @@ rfc1321/$(DEPDIR)/$(am__dirstamp):
 rfc1321/md5c.lo: rfc1321/$(am__dirstamp) \
 	rfc1321/$(DEPDIR)/$(am__dirstamp)
 
-libemd5.la: $(libemd5_la_OBJECTS) $(libemd5_la_DEPENDENCIES) $(EXTRA_libemd5_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK) -rpath $(pkglibdir) $(libemd5_la_OBJECTS) $(libemd5_la_LIBADD) $(LIBS)
+libhw_engine.la: $(libhw_engine_la_OBJECTS) $(libhw_engine_la_DEPENDENCIES) $(EXTRA_libhw_engine_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK) -rpath $(pkglibdir) $(libhw_engine_la_OBJECTS) $(libhw_engine_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -448,7 +448,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/e_md5.Plo
+include ./$(DEPDIR)/hw_engine.Plo
 include rfc1321/$(DEPDIR)/md5c.Plo
 
 .c.o:
