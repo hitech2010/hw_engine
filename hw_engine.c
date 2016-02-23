@@ -12,8 +12,16 @@
 extern void engine_md5_init(EVP_MD *);
 static EVP_MD digest_md5;
 
+/* sha1 */
+extern void engine_sha1_init(EVP_MD *);
+static EVP_MD digest_sha1;
+
+/* sha256 */
+extern void engine_sha256_init(EVP_MD *);
+static EVP_MD digest_sha256;
+
 /* digests */
-static int digest_nids[] = { NID_md5, 0 };
+static int digest_nids[] = { NID_md5, NID_sha1, NID_sha256, 0 };
 static int digests(ENGINE *e, const EVP_MD **digest,
                    const int **nids, int nid)
 {
@@ -28,6 +36,12 @@ static int digests(ENGINE *e, const EVP_MD **digest,
   switch (nid) {
   case NID_md5:
     *digest = &digest_md5;
+    break;
+  case NID_sha1:
+    *digest = &digest_sha1;
+    break;
+  case NID_sha256:
+    *digest = &digest_sha256;
     break;
   default:
     ok = 0;
@@ -45,6 +59,8 @@ static int digests(ENGINE *e, const EVP_MD **digest,
 static int cryptop_init(ENGINE *e)
 {
   engine_md5_init(&digest_md5);
+  engine_sha1_init(&digest_sha1);
+  engine_sha256_init(&digest_sha256);
 
   return 1;
 };
@@ -74,7 +90,5 @@ static int cryptop_bind_fn(ENGINE *e, const char *id)
   return 1;
 }
 
-/* Begin: SHA implementations */
-/* End: SHA implementations */
 IMPLEMENT_DYNAMIC_BIND_FN(cryptop_bind_fn)
 IMPLEMENT_DYNAMIC_CHECK_FN()
