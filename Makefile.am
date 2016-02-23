@@ -1,10 +1,10 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README.md rfc1321/global.h rfc1321/md5.h
+EXTRA_DIST = README.md
 
 pkglib_LTLIBRARIES = libhw_engine.la
 
-libhw_engine_la_SOURCES = hw_engine.c rfc1321/md5c.c
+libhw_engine_la_SOURCES = hw_engine.c
 
 # Override some variables for the examples, this is NOT necessary
 pkgdatadir = /usr/share/engine-zjw

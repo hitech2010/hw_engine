@@ -2,15 +2,12 @@
 #include <string.h>
 
 #include <openssl/engine.h>
-
 #include <openssl/evp.h>
-#include "rfc1321/global.h"
-#include "rfc1321/md5.h"
+#include <openssl/md5.h>
 /* md5 */
 static int md5_init(EVP_MD_CTX *ctx);
 static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count);
 static int md5_final(EVP_MD_CTX *ctx, unsigned char *md);
-
 static EVP_MD digest_md5;
 
 /* It takes a copy of the builtin OpenSSL MD5WithRSAEncryption
@@ -20,11 +17,14 @@ static EVP_MD digest_md5;
 static void init(void)
 {
   memcpy(&digest_md5, EVP_md5(), sizeof(EVP_MD));
+  /* we need to use crypto functions here */
+  /*
   digest_md5.init = md5_init;
   digest_md5.update = md5_update;
   digest_md5.final = md5_final;
-  digest_md5.block_size = 64;   /* Internal blocksize, see rfc1321/md5.h */
+  digest_md5.block_size = 64;
   digest_md5.ctx_size = sizeof(MD5_CTX);
+  */
 };
 
 /* digests */
@@ -93,25 +93,24 @@ static int bind(ENGINE *e, const char *id)
   return ret;
 }
 
-/* Begin: These are the md5 implementations */
+/* Begin: MD5 implementations */
 static int md5_init(EVP_MD_CTX *ctx)
 {
-  MD5Init(ctx->md_data);
   return 1;
 }
 
 static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count)
 {
-  MD5Update(ctx->md_data, data, count);
   return 1;
 }
 
 static int md5_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
-  MD5Final(md, ctx->md_data);
   return 1;
 }
-/* End: These are the md5 implementations */
+/* End: MD5 implementations */
 
+/* Begin: SHA implementations */
+/* End: SHA implementations */
 IMPLEMENT_DYNAMIC_BIND_FN(bind)
 IMPLEMENT_DYNAMIC_CHECK_FN()

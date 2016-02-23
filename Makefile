@@ -123,8 +123,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libhw_engine_la_LIBADD =
-am__dirstamp = $(am__leading_dot)dirstamp
-am_libhw_engine_la_OBJECTS = hw_engine.lo rfc1321/md5c.lo
+am_libhw_engine_la_OBJECTS = hw_engine.lo
 libhw_engine_la_OBJECTS = $(am_libhw_engine_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -335,9 +334,9 @@ top_builddir = .
 top_srcdir = .
 AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README.md rfc1321/global.h rfc1321/md5.h
+EXTRA_DIST = README.md
 pkglib_LTLIBRARIES = libhw_engine.la
-libhw_engine_la_SOURCES = hw_engine.c rfc1321/md5c.c
+libhw_engine_la_SOURCES = hw_engine.c
 pkgexecdir = /usr/share/engine-zjw/libexec
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -428,28 +427,17 @@ clean-pkglibLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-rfc1321/$(am__dirstamp):
-	@$(MKDIR_P) rfc1321
-	@: > rfc1321/$(am__dirstamp)
-rfc1321/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) rfc1321/$(DEPDIR)
-	@: > rfc1321/$(DEPDIR)/$(am__dirstamp)
-rfc1321/md5c.lo: rfc1321/$(am__dirstamp) \
-	rfc1321/$(DEPDIR)/$(am__dirstamp)
 
 libhw_engine.la: $(libhw_engine_la_OBJECTS) $(libhw_engine_la_DEPENDENCIES) $(EXTRA_libhw_engine_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(pkglibdir) $(libhw_engine_la_OBJECTS) $(libhw_engine_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f rfc1321/*.$(OBJEXT)
-	-rm -f rfc1321/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/hw_engine.Plo
-include rfc1321/$(DEPDIR)/md5c.Plo
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -480,7 +468,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf rfc1321/.libs rfc1321/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -733,8 +720,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f rfc1321/$(DEPDIR)/$(am__dirstamp)
-	-rm -f rfc1321/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -746,7 +731,7 @@ clean-am: clean-generic clean-libtool clean-pkglibLTLIBRARIES \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) rfc1321/$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -794,7 +779,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) rfc1321/$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
