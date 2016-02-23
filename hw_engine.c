@@ -9,9 +9,7 @@
 #define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
 
 /* md5 */
-extern int md5_init(EVP_MD_CTX *ctx);
-extern int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count);
-extern int md5_final(EVP_MD_CTX *ctx, unsigned char *md);
+extern void engine_md5_init(EVP_MD *);
 static EVP_MD digest_md5;
 
 /* digests */
@@ -43,20 +41,11 @@ static int digests(ENGINE *e, const EVP_MD **digest,
  * This is the function used by ENGINE_set_init_function.
  * We now use the OPENSSL builtin implementations. Should be replaced
  * by the cryptop functions.
- * For now It takes a copy of the builtin OpenSSL MD5WithRSAEncryption
- * implementation and just changes the init/update/final function
- * pointers, thereby keeping the PKEY implementation from OpenSSL.
 */
 static int cryptop_init(ENGINE *e)
 {
-  memcpy(&digest_md5, EVP_md5(), sizeof(EVP_MD));
-  
-  digest_md5.init = md5_init;
-  digest_md5.update = md5_update;
-  digest_md5.final = md5_final;
-  digest_md5.block_size = 64;
-  digest_md5.ctx_size = sizeof(MD5_CTX);
-  
+  engine_md5_init(&digest_md5);
+
   return 1;
 };
 
