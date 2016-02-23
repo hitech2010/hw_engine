@@ -6,29 +6,14 @@
 #include <openssl/evp.h>
 #include "rfc1321/global.h"
 #include "rfc1321/md5.h"
-
-static int md5_init(EVP_MD_CTX *ctx)
-{
-  MD5Init(ctx->md_data);
-  return 1;
-}
-
-static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count)
-{
-  MD5Update(ctx->md_data, data, count);
-  return 1;
-}
-
-static int md5_final(EVP_MD_CTX *ctx, unsigned char *md)
-{
-  MD5Final(md, ctx->md_data);
-  return 1;
-}
+/* md5 */
+static int md5_init(EVP_MD_CTX *ctx);
+static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count);
+static int md5_final(EVP_MD_CTX *ctx, unsigned char *md);
 
 static EVP_MD digest_md5;
 
-/* This is a little more advanced than what I show in the OpenSSL
-   blog.  It takes a copy of the builtin OpenSSL MD5WithRSAEncryption
+/* It takes a copy of the builtin OpenSSL MD5WithRSAEncryption
    implementation and just changes the init/update/final function
    pointers, thereby keeping the PKEY implementation from OpenSSL.
 */
@@ -42,6 +27,7 @@ static void init(void)
   digest_md5.ctx_size = sizeof(MD5_CTX);
 };
 
+/* digests */
 static int digest_nids[] = { NID_md5, 0 };
 static int digests(ENGINE *e, const EVP_MD **digest,
                    const int **nids, int nid)
@@ -106,6 +92,26 @@ static int bind(ENGINE *e, const char *id)
  end:
   return ret;
 }
+
+/* Begin: These are the md5 implementations */
+static int md5_init(EVP_MD_CTX *ctx)
+{
+  MD5Init(ctx->md_data);
+  return 1;
+}
+
+static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count)
+{
+  MD5Update(ctx->md_data, data, count);
+  return 1;
+}
+
+static int md5_final(EVP_MD_CTX *ctx, unsigned char *md)
+{
+  MD5Final(md, ctx->md_data);
+  return 1;
+}
+/* End: These are the md5 implementations */
 
 IMPLEMENT_DYNAMIC_BIND_FN(bind)
 IMPLEMENT_DYNAMIC_CHECK_FN()
