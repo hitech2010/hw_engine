@@ -8,6 +8,8 @@
 #define HW_ENGINE_ID	"hw_engine"
 #define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
 
+/*-------------------------The Engine Digests-------------------------*/
+
 /* md5 */
 extern void engine_md5_init(EVP_MD *);
 static EVP_MD digest_md5;
@@ -53,11 +55,12 @@ static int digests(ENGINE *e, const EVP_MD **digest,
 
 /* 
  * This is the function used by ENGINE_set_init_function.
- * We now use the OPENSSL builtin implementations. Should be replaced
- * by the cryptop functions.
+ * We now use the OPENSSL builtin implementations. Should be
+ * replaced by the cryptop functions.
 */
 static int cryptop_init(ENGINE *e)
 {
+  /* digests */
   engine_md5_init(&digest_md5);
   engine_sha1_init(&digest_sha1);
   engine_sha256_init(&digest_sha256);
