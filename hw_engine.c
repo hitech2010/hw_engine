@@ -4,28 +4,15 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
-/* md5 */
-static int md5_init(EVP_MD_CTX *ctx);
-static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count);
-static int md5_final(EVP_MD_CTX *ctx, unsigned char *md);
-static EVP_MD digest_md5;
 
-/* It takes a copy of the builtin OpenSSL MD5WithRSAEncryption
-   implementation and just changes the init/update/final function
-   pointers, thereby keeping the PKEY implementation from OpenSSL.
-*/
-static void init(void)
-{
-  memcpy(&digest_md5, EVP_md5(), sizeof(EVP_MD));
-  /* we need to use crypto functions here */
-  /*
-  digest_md5.init = md5_init;
-  digest_md5.update = md5_update;
-  digest_md5.final = md5_final;
-  digest_md5.block_size = 64;
-  digest_md5.ctx_size = sizeof(MD5_CTX);
-  */
-};
+#define HW_ENGINE_ID	"hw_engine"
+#define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
+
+/* md5 */
+extern int md5_init(EVP_MD_CTX *ctx);
+extern int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count);
+extern int md5_final(EVP_MD_CTX *ctx, unsigned char *md);
+static EVP_MD digest_md5;
 
 /* digests */
 static int digest_nids[] = { NID_md5, 0 };
@@ -52,65 +39,53 @@ static int digests(ENGINE *e, const EVP_MD **digest,
   return ok;
 }
 
-static const char *engine_id = "hw_engine";
-static const char *engine_name = "An OpenSSL engine for cryptop";
-static int bind(ENGINE *e, const char *id)
+/* 
+ * This is the function used by ENGINE_set_init_function.
+ * We now use the OPENSSL builtin implementations. Should be replaced
+ * by the cryptop functions.
+ * For now It takes a copy of the builtin OpenSSL MD5WithRSAEncryption
+ * implementation and just changes the init/update/final function
+ * pointers, thereby keeping the PKEY implementation from OpenSSL.
+*/
+static int cryptop_init(ENGINE *e)
 {
-  int ret = 0;
+  memcpy(&digest_md5, EVP_md5(), sizeof(EVP_MD));
+  
+  digest_md5.init = md5_init;
+  digest_md5.update = md5_update;
+  digest_md5.final = md5_final;
+  digest_md5.block_size = 64;
+  digest_md5.ctx_size = sizeof(MD5_CTX);
+  
+  return 1;
+};
 
-  static int loaded = 0;
-
-  if (id && strcmp(id, engine_id)) {
-    fprintf(stderr, "MD5 engine called with the unexpected id %s\n", id);
-    fprintf(stderr, "The expected id is %s\n", engine_id);
-    goto end;
-  }
-
-  if (loaded) {
-    fprintf(stderr, "MD5 engine already loaded\n");
-    goto end;
-  }
-
-  loaded = 1;
-
-  if (!ENGINE_set_id(e, engine_id)) {
-    fprintf(stderr, "ENGINE_set_id failed\n");
-    goto end;
-  }
-  if (!ENGINE_set_name(e, engine_name)) {
-    printf("ENGINE_set_name failed\n");
-    goto end;
-  }
-  if (!ENGINE_set_digests(e, digests)) {
-    printf("ENGINE_set_name failed\n");
-    goto end;
-  }
-
-  init();
-
-  ret = 1;
- end:
-  return ret;
-}
-
-/* Begin: MD5 implementations */
-static int md5_init(EVP_MD_CTX *ctx)
+static int cryptop_bind_helper(ENGINE *e)
 {
+  if (!ENGINE_set_id(e, HW_ENGINE_ID) ||
+      !ENGINE_set_name(e, HW_ENGINE_NAME) ||
+      !ENGINE_set_init_function(e, cryptop_init) ||
+      !ENGINE_set_digests(e, digests)) {
+    return 0;
+  }
+
   return 1;
 }
 
-static int md5_update(EVP_MD_CTX *ctx, const void *data, size_t count)
+static int cryptop_bind_fn(ENGINE *e, const char *id)
 {
-  return 1;
-}
+  if (id && strcmp(id, HW_ENGINE_ID)) {
+    fprintf(stderr, "Bad engine id %s, expected id is %s\n", id, HW_ENGINE_ID);
+    return 0;
+  }
+  if (!cryptop_bind_helper(e)) {
+    fprintf(stderr, "Bind failed\n");
+  }
 
-static int md5_final(EVP_MD_CTX *ctx, unsigned char *md)
-{
   return 1;
 }
-/* End: MD5 implementations */
 
 /* Begin: SHA implementations */
 /* End: SHA implementations */
-IMPLEMENT_DYNAMIC_BIND_FN(bind)
+IMPLEMENT_DYNAMIC_BIND_FN(cryptop_bind_fn)
 IMPLEMENT_DYNAMIC_CHECK_FN()

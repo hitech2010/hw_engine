@@ -123,7 +123,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libhw_engine_la_LIBADD =
-am_libhw_engine_la_OBJECTS = hw_engine.lo
+am_libhw_engine_la_OBJECTS = hw_engine.lo hw_md5.lo
 libhw_engine_la_OBJECTS = $(am_libhw_engine_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -336,7 +336,7 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README.md
 pkglib_LTLIBRARIES = libhw_engine.la
-libhw_engine_la_SOURCES = hw_engine.c
+libhw_engine_la_SOURCES = hw_engine.c hw_md5.c
 pkgexecdir = /usr/share/engine-zjw/libexec
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -438,6 +438,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/hw_engine.Plo
+include ./$(DEPDIR)/hw_md5.Plo
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
