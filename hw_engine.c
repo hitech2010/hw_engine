@@ -131,6 +131,12 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 static RSA_METHOD hw_rsa;
 extern void engine_rsa_init(RSA_METHOD *);
 
+
+/*-------------------------The Engine RAND-------------------------*/
+static RAND_METHOD hw_rand;
+extern void engine_rand_init(RAND_METHOD *);
+
+/*---------------------The Engine INIT & BIND----------------------*/
 /* 
  * This is the function used by ENGINE_set_init_function.
  * We now use the OPENSSL builtin implementations. Should be
@@ -153,6 +159,9 @@ static int cryptop_init(ENGINE *e)
   /* rsa */
   engine_rsa_init(&hw_rsa);
 
+  /* rand */
+  engine_rand_init(&hw_rand);
+
   return 1;
 };
 
@@ -163,7 +172,8 @@ static int cryptop_bind_helper(ENGINE *e)
       !ENGINE_set_init_function(e, cryptop_init) ||
       !ENGINE_set_digests(e, digests) ||
       !ENGINE_set_ciphers(e, ciphers) ||
-      !ENGINE_set_RSA(e, &hw_rsa)) {
+      !ENGINE_set_RSA(e, &hw_rsa) ||
+      !ENGINE_set_RAND(e, &hw_rand)) {
     return 0;
   }
 
