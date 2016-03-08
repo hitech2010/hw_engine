@@ -190,6 +190,20 @@ static int cryptop_init(ENGINE *e)
   return 1;
 };
 
+/* This function will be called when the
+ * Engine got finished.
+ */
+static int cryptop_finish(ENGINE *e)
+{
+  if (reg_base)
+    munmap((void *)reg_base, CRYPTOP_SIZE);
+
+  if (fd > 0)
+    close(fd);
+
+  return 1;
+}
+
 static int cryptop_bind_helper(ENGINE *e)
 {
   if (!ENGINE_set_id(e, HW_ENGINE_ID) ||
@@ -198,7 +212,8 @@ static int cryptop_bind_helper(ENGINE *e)
       !ENGINE_set_digests(e, digests) ||
       !ENGINE_set_ciphers(e, ciphers) ||
       !ENGINE_set_RSA(e, &hw_rsa) ||
-      !ENGINE_set_RAND(e, &hw_rand)) {
+      !ENGINE_set_RAND(e, &hw_rand) ||
+      !ENGINE_set_finish_function(e, cryptop_finish)) {
     return 0;
   }
 

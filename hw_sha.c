@@ -61,7 +61,7 @@ static void sha1_transform(const void *buffer, int last, size_t last_len)
   } else {	// the last one
     *(unsigned int *)(reg_base + 0x988) = 0x80000;
     *(unsigned int *)(reg_base + 0x984) = 0xf0004009 | (last_len << 4);
-    //usleep(5);
+    usleep(1);
   }
 }
 
