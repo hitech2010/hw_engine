@@ -41,6 +41,11 @@ void engine_sha256_init(EVP_MD * digest_sha256)
 // The sha1 implementatitons
 static int sha1_init(EVP_MD_CTX *ctx)
 {
+  SHA_CTX *c = (SHA_CTX *)(ctx->md_data);
+  c->Nl = 0;
+  c->Nh = 0;
+  memset(c->data, 0, sizeof(c->data));
+
   *(unsigned int *)(reg_base + 0x920) = 0x10;
   return 1;
 }
@@ -69,7 +74,6 @@ static int sha1_update(EVP_MD_CTX *ctx, const void *data, size_t len)
 {
   SHA_CTX *c = (SHA_CTX *)(ctx->md_data);
   const unsigned char *p = data;
-  unsigned char tmp[64];
   int i = 0;
   int n = len / 64;
   int m = len % 64;
@@ -78,11 +82,23 @@ static int sha1_update(EVP_MD_CTX *ctx, const void *data, size_t len)
     sha1_transform(p + i*64, 0, 0);
   }
 
-  if (m < 56) {
-    memset(tmp, 0, sizeof(tmp));
-    if (m > 0)
-      memcpy(tmp, p + i*64, m);
+  c->Nl = m;
+  c->Nh = len;
+  if (m > 0) {
+    memcpy(c->data, p + i*64, m);
+  }
 
+  return 1;
+}
+
+static int sha1_final(EVP_MD_CTX *ctx, unsigned char *md)
+{
+  SHA_CTX *c = (SHA_CTX *)(ctx->md_data);
+  unsigned char *tmp = (unsigned char *)(c->data);
+  int m = c->Nl;
+  int len = c->Nh;
+
+  if (m < 56) {
     tmp[m] = 0x80;
     
     tmp[60] = ((len << 3) & 0xff000000) >> 24;
@@ -91,8 +107,6 @@ static int sha1_update(EVP_MD_CTX *ctx, const void *data, size_t len)
     tmp[63] = ((len << 3) & 0x000000ff);
     sha1_transform(tmp, 1, m << 3);	// the last one
   } else {
-    memset(tmp, 0, sizeof(tmp));
-    memcpy(tmp, p + i*64, m);
     tmp[m] = 0x80;
     sha1_transform(tmp, 0, 0);	// not the last one
     memset(tmp, 0, sizeof(tmp));
@@ -110,13 +124,6 @@ static int sha1_update(EVP_MD_CTX *ctx, const void *data, size_t len)
   c->h3 = *(unsigned int *)(reg_base + 0xa30);
   c->h4 = *(unsigned int *)(reg_base + 0xa34);
 
-  return 1;
-}
-
-static int sha1_final(EVP_MD_CTX *ctx, unsigned char *md)
-{
-  SHA_CTX *c = (SHA_CTX *)(ctx->md_data);
-  
   md[0] = (c->h0 & 0xff000000) >> 24;
   md[1] = (c->h0 & 0x00ff0000) >> 16;
   md[2] = (c->h0 & 0x0000ff00) >> 8;
