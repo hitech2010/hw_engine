@@ -94,8 +94,11 @@ static int sha1_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
   SHA_CTX *c = (SHA_CTX *)(ctx->md_data);
   unsigned char *tmp = (unsigned char *)(c->data);
+  unsigned int *md_p = (unsigned int *)md;
   int m = c->Nl;
   int len = c->Nh;
+  int i = 0;
+  int val;
 
   if (m < 56) {
     tmp[m] = 0x80;
@@ -116,37 +119,21 @@ static int sha1_final(EVP_MD_CTX *ctx, unsigned char *md)
     tmp[63] = ((len << 3) & 0x000000ff);
     sha1_transform(tmp, 1, 0);	// the last one
   }
+/*
+  // This is different from SHA256's big endian
+  for (i = 0; i < 5; i++) {
+    md_p[i] = *(unsigned int *)(reg_base + 0xa24 + i*4);
+  }
+*/
 
-  c->h0 = *(unsigned int *)(reg_base + 0xa24);
-  c->h1 = *(unsigned int *)(reg_base + 0xa28);
-  c->h2 = *(unsigned int *)(reg_base + 0xa2c);
-  c->h3 = *(unsigned int *)(reg_base + 0xa30);
-  c->h4 = *(unsigned int *)(reg_base + 0xa34);
+  for (i = 0; i < 5; i++) {
+    val = *(unsigned int *)(reg_base + 0xa24 + i*4);
+    md[i*4] = (val & 0xff000000) >> 24;
+    md[i*4+1] = (val & 0x00ff0000) >> 16;
+    md[i*4+2] = (val & 0x0000ff00) >> 8;
+    md[i*4+3] = (val & 0x000000ff);
+  }
 
-  md[0] = (c->h0 & 0xff000000) >> 24;
-  md[1] = (c->h0 & 0x00ff0000) >> 16;
-  md[2] = (c->h0 & 0x0000ff00) >> 8;
-  md[3] = c->h0 & 0x000000ff;
-
-  md[4] = (c->h1 & 0xff000000) >> 24;
-  md[5] = (c->h1 & 0x00ff0000) >> 16;
-  md[6] = (c->h1 & 0x0000ff00) >> 8;
-  md[7] = c->h1 & 0x000000ff;
-
-  md[8] = (c->h2 & 0xff000000) >> 24;
-  md[9] = (c->h2 & 0x00ff0000) >> 16;
-  md[10] = (c->h2 & 0x0000ff00) >> 8;
-  md[11] = c->h2 & 0x000000ff;
-
-  md[12] = (c->h3 & 0xff000000) >> 24;
-  md[13] = (c->h3 & 0x00ff0000) >> 16;
-  md[14] = (c->h3 & 0x0000ff00) >> 8;
-  md[15] = c->h3 & 0x000000ff;
-
-  md[16] = (c->h4 & 0xff000000) >> 24;
-  md[17] = (c->h4 & 0x00ff0000) >> 16;
-  md[18] = (c->h4 & 0x0000ff00) >> 8;
-  md[19] = c->h4 & 0x000000ff;
   return 1;
 }
 
@@ -206,6 +193,7 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
   SHA256_CTX *c = (SHA256_CTX *)(ctx->md_data);
   unsigned char *tmp = (unsigned char *)(c->data);
+  unsigned int *md_p = (unsigned int *)md;
   int m = c->Nl;
   int len = c->Nh;
   int i = 0;
@@ -229,14 +217,8 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md)
   }
 
   for (i = 0; i < 8; i++) {
-    c->h[i] = *(unsigned int *)(reg_base + 0xa24 + i*4);
-  }
-
-  for (i = 0; i < 8; i++) {
-    md[i*4] = (c->h[i] & 0xff000000) >> 24;
-    md[i*4+1] = (c->h[i] & 0x00ff0000) >> 16;
-    md[i*4+2] = (c->h[i] & 0x0000ff00) >> 8;
-    md[i*4+3] = c->h[i] & 0x000000ff;
+    // This is big endian, not need switch
+    md_p[i] = *(unsigned int *)(reg_base + 0xa24 + i*4);
   }
 
   return 1;
