@@ -49,7 +49,7 @@ static int sha1_init(EVP_MD_CTX *ctx)
   c->Nh = 0;
   memset(c->data, 0, sizeof(c->data));
 
-  *(unsigned int *)(reg_base + 0x920) = 0x10;
+  REG_MODE = 0x10;
   return 1;
 }
 

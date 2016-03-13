@@ -10,6 +10,17 @@
 #define CRYPTOP_SIZE 0x80000	//512KB
 #define CRYPTOP_INTR 0xee600004
 
+/* The Registers */
+#define __REG(x)	(*(unsigned int *)(x))
+#define REG_MODE	__REG(reg_base + 0x248*4)
+#define REG_HASH_PORT_HIG	__REG(reg_base + 0x262*4)
+#define REG_HASH_PORT_LOW	__REG(reg_base + 0x261*4)
+
+/* The Instructions */
+#define HASH_PORT_HIG	(0x1 << 19)
+#define HASH_PORT_LOW(last_block,block_len,alg,lock_c)	((((last_block)&0x1)<<14) \
+	      | (((block_len)&0x3ff)<<4) | (((alg)&0x3)<<2) | (((lock_c)&0x1)<<1) | (0xf<<28))
+
 /* Use this when declaring EVP_CIPHER structs, declaring so many ciphers
  * by hand would be pain.
  */
