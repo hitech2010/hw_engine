@@ -28,18 +28,6 @@
 #define HW_ENGINE_ID	"hw_engine"
 #define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
 
-struct hw_cipher_data {
-  union {
-    double align;
-    AES_KEY ks;
-  } ks;
-  block128_f block;
-  union {
-    cbc128_f cbc;
-    ctr128_f ctr;
-  } stream;
-};
-
 unsigned int reg_base = 0;
 unsigned int fd = -1;
 

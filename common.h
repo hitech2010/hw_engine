@@ -2,6 +2,10 @@
 #ifndef HEADER_COMMON_H
 #define HEADER_COMMON_H
 
+#include <openssl/aes.h>
+#include <openssl/modes.h>
+#include <openssl/err.h>
+
 #define CRYPTOP_BASE 0xC0900000
 #define CRYPTOP_SIZE 0x80000	//512KB
 #define CRYPTOP_INTR 0xee600004
@@ -19,7 +23,7 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
   aes_init_key,			  \
   aes_##lmode##_cipher,		  \
   NULL,				  \
-  sizeof(struct hw_cipher_data),  \
+  sizeof(HW_Cipher_Data),	  \
   EVP_CIPHER_set_asn1_iv,	  \
   EVP_CIPHER_get_asn1_iv,	  \
   NULL,				  \
@@ -47,5 +51,17 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
 #define	EVP_CIPHER_block_size_OFB	1
 #define	EVP_CIPHER_block_size_CFB	1
 #define	EVP_CIPHER_block_size_CTR	1
+
+typedef struct hw_cipher_data {
+  union {
+    double align;
+    AES_KEY ks;
+  } ks;
+  block128_f block;
+  union {
+    cbc128_f cbc;
+    ctr128_f ctr;
+  } stream;
+} HW_Cipher_Data;
 
 #endif
