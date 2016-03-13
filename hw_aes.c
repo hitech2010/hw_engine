@@ -16,8 +16,8 @@ int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 			const unsigned char *iv, int enc)
 {
   int ret, mode;
-  //HW_Cipher_Data *dat = (HW_Cipher_Data *)(ctx->cipher_data);
-  HW_Cipher_Data *dat = (HW_Cipher_Data *)(EVP_CIPHER_CTX_cipher_data(ctx));
+  HW_Cipher_Data *dat = (HW_Cipher_Data *)(ctx->cipher_data);
+  //HW_Cipher_Data *dat = (HW_Cipher_Data *)(EVP_CIPHER_CTX_cipher_data(ctx));
   
   mode = EVP_CIPHER_CTX_mode(ctx);
   if ((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE) && !enc) {

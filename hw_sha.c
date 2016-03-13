@@ -36,6 +36,9 @@ void engine_sha1_init(EVP_MD * digest_sha1)
 void engine_sha256_init(EVP_MD * digest_sha256)
 {
   memcpy(digest_sha256, EVP_sha256(), sizeof(EVP_MD));
+  digest_sha256->init = sha256_init;
+  digest_sha256->update = sha256_update;
+  digest_sha256->final = sha256_final;
 }
 
 // The sha1 implementatitons
