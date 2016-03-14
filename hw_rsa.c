@@ -10,6 +10,8 @@
 
 #include "common.h"
 
+#if IS_CRYPTOP
+
 #define HW_RSA_NAME "cryptop RSA"
 
 static int rsa_pub_encypt(int flen, const unsigned char *from,
@@ -79,3 +81,4 @@ static int rsa_finish(RSA *rsa)
 {
   return 1;
 }
+#endif

@@ -7,6 +7,9 @@
 #include <openssl/evp.h>
 #include <string.h>
 #include <openssl/rand.h>
+#include <common.h>
+
+#if IS_CRYPTOP
 
 static int seed(const void *buf, int num);
 static int bytes(unsigned char *buf, int num);
@@ -49,3 +52,4 @@ static int status(void)
 {
   return 1;
 }
+#endif

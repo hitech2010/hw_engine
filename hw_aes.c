@@ -12,6 +12,7 @@
 
 #include "common.h"
 
+#if IS_CRYPTOP
 int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 			const unsigned char *iv, int enc)
 {
@@ -73,3 +74,4 @@ int aes_ctr_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 {
   return 1;
 }
+#endif

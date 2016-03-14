@@ -27,18 +27,24 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md);
 void engine_sha1_init(EVP_MD * digest_sha1)
 {
   memcpy(digest_sha1, EVP_sha1(), sizeof(EVP_MD));
+
+#if IS_CRYPTOP  
   digest_sha1->init = sha1_init;
   digest_sha1->update = sha1_update;
   digest_sha1->final = sha1_final;
+#endif
 }
 
 // The engine calls this function to initial EVP_MD sha256
 void engine_sha256_init(EVP_MD * digest_sha256)
 {
   memcpy(digest_sha256, EVP_sha256(), sizeof(EVP_MD));
+
+#if IS_CRYPTOP  
   digest_sha256->init = sha256_init;
   digest_sha256->update = sha256_update;
   digest_sha256->final = sha256_final;
+#endif  
 }
 
 // The sha1 implementatitons

@@ -6,6 +6,8 @@
 #include <openssl/modes.h>
 #include <openssl/err.h>
 
+#define IS_CRYPTOP	0
+
 #define CRYPTOP_BASE 0xC0900000
 #define CRYPTOP_SIZE 0x80000	//512KB
 #define CRYPTOP_INTR 0xee600004

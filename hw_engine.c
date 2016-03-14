@@ -26,7 +26,9 @@
 #include "common.h"
 
 #define HW_ENGINE_ID	"hw_engine"
-#define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop"
+#define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop and USBKey"
+
+#if IS_CRYPTOP
 
 unsigned int reg_base = 0;
 unsigned int fd = -1;
@@ -211,6 +213,8 @@ extern void engine_rsa_init(RSA_METHOD *);
 static RAND_METHOD hw_rand;
 extern void engine_rand_init(RAND_METHOD *);
 
+#endif
+
 /*---------------------The Engine INIT & BIND----------------------*/
 /* 
  * This is the function used by ENGINE_set_init_function.
@@ -219,8 +223,8 @@ extern void engine_rand_init(RAND_METHOD *);
 */
 static int cryptop_init(ENGINE *e)
 {
+#if IS_CRYPTOP
   int i;
-
   fd = open("/dev/mem", O_RDWR | O_SYNC);
   if (fd < 0) {
     fprintf(stderr, "Can't open /dev/mem\n");
@@ -250,7 +254,7 @@ static int cryptop_init(ENGINE *e)
 
   /* rand */
   engine_rand_init(&hw_rand);
-
+#endif
   return 1;
 };
 
@@ -259,11 +263,13 @@ static int cryptop_init(ENGINE *e)
  */
 static int cryptop_finish(ENGINE *e)
 {
+#if IS_CRYPTOP
   if (reg_base)
     munmap((void *)reg_base, CRYPTOP_SIZE);
 
   if (fd > 0)
     close(fd);
+#endif
 
   return 1;
 }
@@ -273,10 +279,12 @@ static int cryptop_bind_helper(ENGINE *e)
   if (!ENGINE_set_id(e, HW_ENGINE_ID) ||
       !ENGINE_set_name(e, HW_ENGINE_NAME) ||
       !ENGINE_set_init_function(e, cryptop_init) ||
+#if IS_CRYPTOP
       !ENGINE_set_digests(e, digests) ||
       !ENGINE_set_ciphers(e, ciphers) ||
       !ENGINE_set_RSA(e, &hw_rsa) ||
       !ENGINE_set_RAND(e, &hw_rand) ||
+#endif
       !ENGINE_set_finish_function(e, cryptop_finish)) {
     return 0;
   }
