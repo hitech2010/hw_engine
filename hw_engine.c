@@ -14,7 +14,6 @@
 #include <openssl/opensslconf.h>
 #include <openssl/engine.h>
 #include <openssl/evp.h>
-#include <openssl/md5.h>
 #include <openssl/aes.h>
 #include <openssl/modes.h>
 #include <openssl/obj_mac.h>
@@ -35,10 +34,6 @@ unsigned int fd = -1;
 
 /*-------------------------The Engine Digests-------------------------*/
 
-/* md5 */
-extern void engine_md5_init(EVP_MD *);
-static EVP_MD digest_md5;
-
 /* sha1 */
 extern void engine_sha1_init(EVP_MD *);
 static EVP_MD digest_sha1;
@@ -48,7 +43,7 @@ extern void engine_sha256_init(EVP_MD *);
 static EVP_MD digest_sha256;
 
 /* digests */
-static int digest_nids[] = { NID_md5, NID_sha1, NID_sha256, 0 };
+static int digest_nids[] = { NID_sha1, NID_sha256, 0 };
 static int digests(ENGINE *e, const EVP_MD **digest,
                    const int **nids, int nid)
 {
@@ -61,9 +56,6 @@ static int digests(ENGINE *e, const EVP_MD **digest,
 
   /* We are being asked for a specific digest */
   switch (nid) {
-  case NID_md5:
-    *digest = &digest_md5;
-    break;
   case NID_sha1:
     *digest = &digest_sha1;
     break;
