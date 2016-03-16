@@ -69,9 +69,10 @@ static int digests(ENGINE *e, const EVP_MD **digest,
   }
   return ok;
 }
+#endif
 
 /*-------------------------The Engine Ciphers-------------------------*/
-
+#if IS_CRYPTOP
 /* These are the function prototypes, implemented in hw_aes.c */
 extern int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 			const unsigned char *iv, int enc);
@@ -104,9 +105,35 @@ DECLARE_AES_EVP(256,cbc,CBC);
 DECLARE_AES_EVP(256,ofb,OFB);
 DECLARE_AES_EVP(256,cfb,CFB);
 DECLARE_AES_EVP(256,ctr,CTR);
+#endif
+
+#if IS_USBKEY
+extern int sm1_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
+			const unsigned char *iv, int enc);
+extern int sm1_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+			 const unsigned char *in, size_t len);
+
+static const EVP_CIPHER sm1_128 = {
+  //NID_SM1_128,
+  NID_aes_128_cbc,
+  16,			//block size
+  16,			//key size 128 bit
+  16,			//iv len
+  0,			//various flags
+  sm1_init_key,		//init key
+  sm1_do_cipher,	//encrypt/decrypt data
+  NULL,			//cleanup ctx
+  sizeof(SM1_Cipher_Data) + 16,	// how big ctx->data needs to be
+  EVP_CIPHER_set_asn1_iv,
+  EVP_CIPHER_get_asn1_iv,
+  NULL,
+  NULL
+};
+#endif
 
 /* List of supported ciphers. */
-static int cipher_nids[] = {  // 
+static int cipher_nids[] = {
+#if IS_CRYPTOP 
 // AES 128 bits, ecb, cbc, ofb, cfb, ctr
   NID_aes_128_ecb,
   NID_aes_128_cbc,
@@ -127,6 +154,12 @@ static int cipher_nids[] = {  //
   NID_aes_256_ofb128,
   NID_aes_256_cfb128,
   NID_aes_256_ctr,
+#endif
+
+#if IS_USBKEY
+  //NID_SM1_128,	// use NID_aes_128_cbc
+  NID_aes_128_cbc,
+#endif
   0
 };
 
@@ -135,10 +168,11 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 {
   if (!cipher) {
     *nids = cipher_nids;
-    return (sizeof(cipher_nids) - 1) / sizeof(digest_nids[0]);
+    return (sizeof(cipher_nids) - 1) / sizeof(cipher_nids[0]);
   }
 
   switch (nid) {
+#if IS_CRYPTOP
   case NID_aes_128_ecb:
     *cipher = &aes_128_ecb;
     break;
@@ -186,7 +220,17 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
   case NID_aes_256_ctr:
     *cipher = &aes_256_ctr;
     break;
+#endif
 
+#if IS_USBKEY
+  //case NID_SM1_128:
+  //  *cipher = &sm1_128;
+  //  break;
+  case NID_aes_128_cbc:
+    *cipher = &sm1_128;
+    break;
+
+#endif
   default:
     *cipher = NULL;
     return 0;
@@ -195,6 +239,7 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
   return 1;
 }
 
+#if IS_CRYPTOP
 /*-------------------------The Engine RSA-------------------------*/
 
 static RSA_METHOD hw_rsa;
@@ -204,6 +249,9 @@ extern void engine_rsa_init(RSA_METHOD *);
 /*-------------------------The Engine RAND-------------------------*/
 static RAND_METHOD hw_rand;
 extern void engine_rand_init(RAND_METHOD *);
+#endif
+
+#if IS_USBKEY
 
 #endif
 
@@ -271,9 +319,9 @@ static int cryptop_bind_helper(ENGINE *e)
   if (!ENGINE_set_id(e, HW_ENGINE_ID) ||
       !ENGINE_set_name(e, HW_ENGINE_NAME) ||
       !ENGINE_set_init_function(e, cryptop_init) ||
+      !ENGINE_set_ciphers(e, ciphers) ||
 #if IS_CRYPTOP
       !ENGINE_set_digests(e, digests) ||
-      !ENGINE_set_ciphers(e, ciphers) ||
       !ENGINE_set_RSA(e, &hw_rsa) ||
       !ENGINE_set_RAND(e, &hw_rand) ||
 #endif

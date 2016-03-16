@@ -25,3 +25,4 @@ libtool
 tags
 *.la
 *.lo
+*.out
