@@ -82,7 +82,7 @@ typedef struct SM1_Cipher_Data {
   AES_KEY ks;
 } SM1_Cipher_Data;
 
-#define MY_DATA_LEN	(10240)	//9K
+#define MY_DATA_LEN	(1024*5)	//This might cause segmentation fault
 
 struct MY_DATA {
   int con[8];

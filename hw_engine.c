@@ -270,6 +270,7 @@ extern void engine_rand_init(RAND_METHOD *);
 
 static int cryptop_init(ENGINE *e)
 {
+  int ret;
 #if IS_CRYPTOP
   int i;
   fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -309,9 +310,9 @@ static int cryptop_init(ENGINE *e)
     fprintf(stderr, "Can't open %s\n", FILE_PATH);
     return 0;
   }
-  //printf("%s %d\n", __func__, fd);
-  posix_memalign((void **)&tmp_in, 4096, sizeof(struct MY_DATA));
-  //tmp_in = malloc(sizeof(struct MY_DATA));
+  /* cannot use malloc here, don't know why*/
+  ret = posix_memalign((void **)&tmp_in, 1024, sizeof(struct MY_DATA));
+
   if (tmp_in == NULL)
     printf("%s malloc return NULL\n", __func__);
 
