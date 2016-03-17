@@ -11,7 +11,9 @@
 #include <stdio.h>
 #include "common.h"
 
+#if IS_CRYPTOP
 extern unsigned int reg_base;
+#endif
 extern unsigned int fd;
 
 // SHA1, namely SHA160
@@ -47,6 +49,7 @@ void engine_sha256_init(EVP_MD * digest_sha256)
 #endif  
 }
 
+#if IS_CRYPTOP
 // The sha1 implementatitons
 static int sha1_init(EVP_MD_CTX *ctx)
 {
@@ -232,3 +235,4 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md)
 
   return 1;
 }
+#endif

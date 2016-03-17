@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <openssl/opensslconf.h>
 #include <openssl/engine.h>
@@ -18,7 +19,8 @@
 #include <openssl/modes.h>
 #include <openssl/obj_mac.h>
 #include <unistd.h>
-#include <fcntl.h>
+//#include <fcntl.h>
+#include <asm-generic/fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,10 +29,14 @@
 #define HW_ENGINE_ID	"hw_engine"
 #define	HW_ENGINE_NAME	"An OpenSSL engine for cryptop and USBKey"
 
-#if IS_CRYPTOP
+#define FILE_PATH "/mnt/sysfile.a"
 
-unsigned int reg_base = 0;
 unsigned int fd = -1;
+unsigned int reg_base = 0;
+
+struct MY_DATA *tmp_in = NULL;
+
+#if IS_CRYPTOP
 
 /*-------------------------The Engine Digests-------------------------*/
 
@@ -261,6 +267,7 @@ extern void engine_rand_init(RAND_METHOD *);
  * We now use the OPENSSL builtin implementations. Should be
  * replaced by the cryptop functions.
 */
+
 static int cryptop_init(ENGINE *e)
 {
 #if IS_CRYPTOP
@@ -295,6 +302,21 @@ static int cryptop_init(ENGINE *e)
   /* rand */
   engine_rand_init(&hw_rand);
 #endif
+
+#if IS_USBKEY
+  fd = open(FILE_PATH, O_RDWR | O_DIRECT);
+  if (fd < 0) {
+    fprintf(stderr, "Can't open %s\n", FILE_PATH);
+    return 0;
+  }
+  //printf("%s %d\n", __func__, fd);
+  posix_memalign((void **)&tmp_in, 4096, sizeof(struct MY_DATA));
+  //tmp_in = malloc(sizeof(struct MY_DATA));
+  if (tmp_in == NULL)
+    printf("%s malloc return NULL\n", __func__);
+
+#endif
+
   return 1;
 };
 
@@ -307,8 +329,14 @@ static int cryptop_finish(ENGINE *e)
   if (reg_base)
     munmap((void *)reg_base, CRYPTOP_SIZE);
 
+#endif
+
   if (fd > 0)
     close(fd);
+
+#if IS_USBKEY
+  free(tmp_in);
+  tmp_in = NULL;
 #endif
 
   return 1;
@@ -331,6 +359,22 @@ static int cryptop_bind_helper(ENGINE *e)
 
   return 1;
 }
+
+static ENGINE * ENGINE_hw(void)
+{
+  ENGINE *eng = ENGINE_new();
+  if (!eng) {
+    return NULL;
+  }
+
+  if (!cryptop_bind_helper(eng)) {
+    ENGINE_free(eng);
+    return NULL;
+  }
+
+  return eng;
+}
+
 
 static int cryptop_bind_fn(ENGINE *e, const char *id)
 {

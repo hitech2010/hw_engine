@@ -24,8 +24,11 @@ Another test method:
     $ openssl speed sha256 -engine hw_engine
 
 AES usage:
+
     $ openssl enc -aes-128-cbc -iv 1234 -K 1234 -in test.txt -out test.out
     $ openssl enc -d -aes-128-cbc -iv 1234 -K 1234 -in test.out
 
 # USBKey
 Now since the cryptop can only use the HASH_PORT, I must switch to HUAHONG USBKey.
+
+    $ openssl speed -evp aes-128-cbc -engine hw_engine

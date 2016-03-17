@@ -81,4 +81,12 @@ typedef struct hw_cipher_data {
 typedef struct SM1_Cipher_Data {
   AES_KEY ks;
 } SM1_Cipher_Data;
+
+#define MY_DATA_LEN	(10240)	//9K
+
+struct MY_DATA {
+  int con[8];
+  char msg[MY_DATA_LEN - 32];		//at most 8192 char
+};
+
 #endif
