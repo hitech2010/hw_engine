@@ -290,7 +290,6 @@ static int cryptop_init(ENGINE *e)
   }
 
   /* digests */
-  engine_md5_init(&digest_md5);
   engine_sha1_init(&digest_sha1);
   engine_sha256_init(&digest_sha256);
 
