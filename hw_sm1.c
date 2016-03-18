@@ -50,7 +50,7 @@ int sm1_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
   int size;	// the char num we write to fd, multiple of 512
   int ret;
   size = ((len + 32) % 512) == 0 ? (len+32) : (((len+32) >> 9) + 1) << 9;
-  memset(tmp_in, 0, MY_DATA_LEN);	// 8K + 32 instruct code + 480 padding
+  memset(tmp_in, 0, size);	// 8K + 32 instruct code + 480 padding
   if (1 == enc) {		// encryption
     tmp_in->con[0] = 0x12345678;
     tmp_in->con[4] = 0x55;
@@ -60,11 +60,12 @@ int sm1_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     
     memcpy(tmp_in->msg, in, len);
     lseek(fd, 0, SEEK_SET);
-    ret = write(fd, tmp_in, MY_DATA_LEN);
+    //write(fd, tmp_in, MY_DATA_LEN);
+    write(fd, tmp_in, size);
     fsync(fd);
 
     lseek(fd, 0, SEEK_SET);
-    read(fd, tmp_in, MY_DATA_LEN);
+    read(fd, tmp_in, size);
     fsync(fd);
 
     memcpy(out, tmp_in->msg, len);
@@ -77,11 +78,11 @@ int sm1_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 
     memcpy(tmp_in->msg, in, len);
     lseek(fd, 0, SEEK_SET);
-    write(fd, tmp_in, MY_DATA_LEN);
+    write(fd, tmp_in, size);
     fsync(fd);
 
     lseek(fd, 0, SEEK_SET);
-    read(fd, tmp_in, MY_DATA_LEN);
+    read(fd, tmp_in, size);
     fsync(fd);
 
     memcpy(out, tmp_in->msg, len);
