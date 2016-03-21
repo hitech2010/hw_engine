@@ -7,7 +7,6 @@
 #include <string.h>
 #include <openssl/evp.h>
 #include <openssl/sms4.h>
-#include <openssl/sm3.h>
 #include <openssl/objects.h>
 
 #include "common.h"
@@ -15,8 +14,8 @@
 #if IS_CRYPTOP
 // SM3
 static int sm3_init(EVP_MD_CTX *ctx);
-static int sm3_update(EVP_MD_CTX, const void *data, size_t len);
-static int sm3_final(EVP_MD_CTX, unsigned char *md);
+static int sm3_update(EVP_MD_CTX *ctx, const void *data, size_t len);
+static int sm3_final(EVP_MD_CTX *ctx, unsigned char *md);
 
 void engine_sm3_init(EVP_MD *digest_sm3)
 {
@@ -32,12 +31,12 @@ static int sm3_init(EVP_MD_CTX *ctx)
   return 1;
 }
 
-static int sm3_update(EVP_MD_CTX, const void *data, size_t len)
+static int sm3_update(EVP_MD_CTX *ctx, const void *data, size_t len)
 {
   return 1;
 }
 
-static int sm3_final(EVP_MD_CTX, unsigned char *md)
+static int my_sm3_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
   return 1;
 }
