@@ -35,3 +35,7 @@ AES usage:
 Now since the cryptop can only use the HASH_PORT, I must switch to HUAHONG USBKey.
 
     $ openssl speed -evp aes-128-cbc -engine hw_engine
+    
+# GMSSL
+It's very lucky that I found another OpenSSL branch that supports SM2/SM3/SM4.
+It is based on the branch 1.0.2d, which is fresher than my default openssl-1.0.1f, so I switch to it, which make my work more easy.

@@ -48,8 +48,12 @@ static EVP_MD digest_sha1;
 extern void engine_sha256_init(EVP_MD *);
 static EVP_MD digest_sha256;
 
+/* sm3 */
+extern void engine_sm3_init(EVP_MD *);
+static EVP_MD digest_sm3;
+
 /* digests */
-static int digest_nids[] = { NID_sha1, NID_sha256, 0 };
+static int digest_nids[] = { NID_sha1, NID_sha256, NID_sm3, 0 };
 static int digests(ENGINE *e, const EVP_MD **digest,
                    const int **nids, int nid)
 {
@@ -67,6 +71,9 @@ static int digests(ENGINE *e, const EVP_MD **digest,
     break;
   case NID_sha256:
     *digest = &digest_sha256;
+    break;
+  case NID_sm3:
+    *digest = &digest_sm3;
     break;
   default:
     ok = 0;
@@ -160,6 +167,12 @@ static int cipher_nids[] = {
   NID_aes_256_ofb128,
   NID_aes_256_cfb128,
   NID_aes_256_ctr,
+
+// SM4 ecb, cbc, ofb, cfb
+  NID_sms4_ecb,
+  NID_sms4_cbc,
+  NID_sms4_ofb128,
+  NID_sms4_cfb128,
 #endif
 
 #if IS_USBKEY
