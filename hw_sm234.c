@@ -23,7 +23,27 @@ void engine_sm3_init(EVP_MD *digest_sm3)
 }
 
 // SM4
-int sm4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key, const unsigned char *iv, int enc);
+static int sm4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key, const unsigned char *iv, int enc);
+
+void sm4_init(EVP_CIPHER *sm4_cipher, int mode)
+{
+  switch (mode) {
+  case SM4_ECB:
+    memcpy(sm4_cipher, EVP_sms4_ecb(), sizeof(EVP_CIPHER));
+    // TODO: change the default implementation
+    break;
+  case SM4_CBC:
+    memcpy(sm4_cipher, EVP_sms4_cbc(), sizeof(EVP_CIPHER));
+    break;
+/*  case SM4_OFB:
+    memcpy(sm4_cipher, EVP_sms4_ofb128(), sizeof(EVP_CIPHER));
+    break;
+*/
+  case SM4_CFB:
+    memcpy(sm4_cipher, EVP_sms4_cfb128(), sizeof(EVP_CIPHER));
+    break;
+  }
+}
 
 // SM3 implementatins
 static int sm3_init(EVP_MD_CTX *ctx)

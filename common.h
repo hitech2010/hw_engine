@@ -60,6 +60,11 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
 #define AES_KEY_SIZE_192	24
 #define AES_KEY_SIZE_256	32
 
+#define SM4_ECB	1
+#define SM4_CBC 2
+#define SM4_OFB 3
+#define SM4_CFB 4
+
 #define	EVP_CIPHER_block_size_ECB	AES_BLOCK_SIZE
 #define	EVP_CIPHER_block_size_CBC	AES_BLOCK_SIZE
 #define	EVP_CIPHER_block_size_OFB	1

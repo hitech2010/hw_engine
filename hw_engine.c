@@ -95,29 +95,25 @@ extern int aes_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 			  const unsigned char *in, size_t len);
 extern int aes_cfb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 			  const unsigned char *in, size_t len);
-extern int aes_ofb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
-			  const unsigned char *in, size_t len);
-extern int aes_ctr_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
-			  const unsigned char *in, size_t len);
 
 /* AES, use macro here to make the code clean */
 DECLARE_AES_EVP(128,ecb,ECB);
 DECLARE_AES_EVP(128,cbc,CBC);
-DECLARE_AES_EVP(128,ofb,OFB);
 DECLARE_AES_EVP(128,cfb,CFB);
-DECLARE_AES_EVP(128,ctr,CTR);
 
 DECLARE_AES_EVP(192,ecb,ECB);
 DECLARE_AES_EVP(192,cbc,CBC);
-DECLARE_AES_EVP(192,ofb,OFB);
 DECLARE_AES_EVP(192,cfb,CFB);
-DECLARE_AES_EVP(192,ctr,CTR);
 
 DECLARE_AES_EVP(256,ecb,ECB);
 DECLARE_AES_EVP(256,cbc,CBC);
-DECLARE_AES_EVP(256,ofb,OFB);
 DECLARE_AES_EVP(256,cfb,CFB);
-DECLARE_AES_EVP(256,ctr,CTR);
+
+/* SM4 */
+static EVP_CIPHER sm4_ecb;
+static EVP_CIPHER sm4_cbc;
+static EVP_CIPHER sm4_cfb;
+extern void sm4_init(EVP_CIPHER *, int mode);
 #endif
 
 #if IS_USBKEY
@@ -147,31 +143,24 @@ static const EVP_CIPHER sm1_128 = {
 /* List of supported ciphers. */
 static int cipher_nids[] = {
 #if IS_CRYPTOP 
-// AES 128 bits, ecb, cbc, ofb, cfb, ctr
+// AES 128 bits, ecb, cbc, cfb
   NID_aes_128_ecb,
   NID_aes_128_cbc,
-  NID_aes_128_ofb128,
   NID_aes_128_cfb128,
-  NID_aes_128_ctr,
 
-// AES 192 bits, ecb, cbc, ofb, cfb
+// AES 192 bits, ecb, cbc, cfb
   NID_aes_192_ecb,
   NID_aes_192_cbc,
-  NID_aes_192_ofb128,
   NID_aes_192_cfb128,
-  NID_aes_192_ctr,
 
-// AES 256 bits, ecb, cbc, ofb, cfb
+// AES 256 bits, ecb, cbc, cfb
   NID_aes_256_ecb,
   NID_aes_256_cbc,
-  NID_aes_256_ofb128,
   NID_aes_256_cfb128,
-  NID_aes_256_ctr,
 
-// SM4 ecb, cbc, ofb, cfb
+// SM4 ecb, cbc, cfb
   NID_sms4_ecb,
   NID_sms4_cbc,
-  NID_sms4_ofb128,
   NID_sms4_cfb128,
 #endif
 
@@ -198,14 +187,8 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
   case NID_aes_128_cbc:
     *cipher = &aes_128_cbc;
     break;
-  case NID_aes_128_ofb128:
-    *cipher = &aes_128_ofb;
-    break;
   case NID_aes_128_cfb128:
     *cipher = &aes_128_cfb;
-    break;
-  case NID_aes_128_ctr:
-    *cipher = &aes_128_ctr;
     break;
 
   case NID_aes_192_ecb:
@@ -214,14 +197,8 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
   case NID_aes_192_cbc:
     *cipher = &aes_192_cbc;
     break;
-  case NID_aes_192_ofb128:
-    *cipher = &aes_192_ofb;
-    break;
   case NID_aes_192_cfb128:
     *cipher = &aes_192_cfb;
-    break;
-  case NID_aes_192_ctr:
-    *cipher = &aes_192_ctr;
     break;
 
   case NID_aes_256_ecb:
@@ -230,14 +207,19 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
   case NID_aes_256_cbc:
     *cipher = &aes_256_cbc;
     break;
-  case NID_aes_256_ofb128:
-    *cipher = &aes_256_ofb;
-    break;
   case NID_aes_256_cfb128:
     *cipher = &aes_256_cfb;
     break;
-  case NID_aes_256_ctr:
-    *cipher = &aes_256_ctr;
+  
+  /* SM4 ciphers */
+  case NID_sms4_ecb:
+    *cipher = &sm4_ecb;
+    break;
+  case NID_sms4_cbc:
+    *cipher = &sm4_cbc;
+    break;
+  case NID_sms4_cfb128:
+    *cipher = &sm4_cfb;
     break;
 #endif
 
@@ -308,6 +290,11 @@ static int cryptop_init(ENGINE *e)
 
   /* ciphers */
   // The ciphers are initialized with the DECLARE_AES_EVP macro
+  // INIT SM4
+  sm4_init(&sm4_ecb, SM4_ECB);
+  sm4_init(&sm4_cbc, SM4_CBC);
+  //sm4_init(&sm4_ofb, SM4_OFB);
+  sm4_init(&sm4_cfb, SM4_CFB);
 
   /* rsa */
   engine_rsa_init(&hw_rsa);
