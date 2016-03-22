@@ -293,7 +293,6 @@ static int cryptop_init(ENGINE *e)
   // INIT SM4
   sm4_init(&sm4_ecb, SM4_ECB);
   sm4_init(&sm4_cbc, SM4_CBC);
-  //sm4_init(&sm4_ofb, SM4_OFB);
   sm4_init(&sm4_cfb, SM4_CFB);
 
   /* rsa */
