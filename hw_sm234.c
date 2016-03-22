@@ -41,10 +41,6 @@ void sm4_init(EVP_CIPHER *sm4_cipher, int mode)
   case SM4_CBC:
     memcpy(sm4_cipher, EVP_sms4_cbc(), sizeof(EVP_CIPHER));
     break;
-/*  case SM4_OFB:
-    memcpy(sm4_cipher, EVP_sms4_ofb128(), sizeof(EVP_CIPHER));
-    break;
-*/
   case SM4_CFB:
     memcpy(sm4_cipher, EVP_sms4_cfb128(), sizeof(EVP_CIPHER));
     break;
@@ -54,11 +50,11 @@ void sm4_init(EVP_CIPHER *sm4_cipher, int mode)
 // SM3 implementatins
 static int my_sm3_init(EVP_MD_CTX *ctx)
 {
-  //sm3_ctx_t *c = (sm3_ctx_t *)(ctx->md_data);
-  //c->nblocks = 0;
-  //c->num = 0;
-  //memset(c->block, 0, sizeof(c->block));
-  
+  sm3_ctx_t *c = (sm3_ctx_t *)(ctx->md_data);
+  c->nblocks = 0;
+  c->num = 0;
+  memset(c->block, 0, sizeof(c->block));
+
   REG_MODE = 0x10;
   return 1;
 }
