@@ -287,6 +287,7 @@ static int cryptop_init(ENGINE *e)
   /* digests */
   engine_sha1_init(&digest_sha1);
   engine_sha256_init(&digest_sha256);
+  engine_sm3_init(&digest_sm3);
 
   /* ciphers */
   // The ciphers are initialized with the DECLARE_AES_EVP macro
