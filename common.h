@@ -18,11 +18,27 @@
 #define REG_MODE	__REG(reg_base + 0x248*4)
 #define REG_HASH_PORT_HIG	__REG(reg_base + 0x262*4)
 #define REG_HASH_PORT_LOW	__REG(reg_base + 0x261*4)
+#define REG_AES		__REG(reg_base + 0x29a*4)
+
+#define REG_KEY(id)	__REG(reg_base + 0x2a0*4 + id * 4)
+#define REG_IV(id)	__REG(reg_base + 0x2ac*4 + id * 4)
+#define REG_TEXT(id)	__REG(reg_base + 0x2a8*4 + id * 4)
+#define REG_RESULT(id)	__REG(reg_base + 0x29c*4 + id * 4)
 
 /* The Instructions */
 #define HASH_PORT_HIG	(0x1 << 19)
 #define HASH_PORT_LOW(last_block,block_len,alg,lock_c)	((((last_block)&0x1)<<14) \
 	      | (((block_len)&0x3ff)<<4) | (((alg)&0x3)<<2) | (((lock_c)&0x1)<<1) | (0xf<<28))
+#define BC_INI(alg, key_len, enc, mode, fbsel) ((((alg)&0x3) << 26) | (((key_len)&0x3) << 24) \
+	      | (((enc)&0x1) << 23) | (((mode)&0x7) << 15) | (((fbsel)&0x3) << 13) \
+	      | (0x1 << 18))
+#define KEXP(alg, key_len, enc, mode, fbsel) ((((alg)&0x3) << 26) | (((key_len)&0x3) << 24) \
+	      | (((enc)&0x1) << 23) | (((mode)&0x7) << 15) | (((fbsel)&0x3) << 13) \
+	      | (0x1 << 22) | (0x1 << 18))
+
+#define ED(alg, key_len, enc, mode, fbsel, lock_c) ((((alg)&0x3) << 26) | (((key_len)&0x3) << 24) \
+	      | (((enc)&0x1) << 23) | (((mode)&0x7) << 15) | (((fbsel)&0x3) << 13) \
+	      | (((lock_c)&0x1) << 12) | (0x1 << 21) | (0x1 << 18))
 
 /* Use this when declaring EVP_CIPHER structs, declaring so many ciphers
  * by hand would be pain.
@@ -35,9 +51,9 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
   AES_BLOCK_SIZE,		  \
   0 | EVP_CIPH_##umode##_MODE,	  \
   aes_init_key,			  \
-  aes_##lmode##_cipher,		  \
+  aes_cipher,		  \
   NULL,				  \
-  sizeof(HW_Cipher_Data),	  \
+  sizeof(AES_Cipher_Data),	  \
   EVP_CIPHER_set_asn1_iv,	  \
   EVP_CIPHER_get_asn1_iv,	  \
   NULL,				  \
@@ -71,17 +87,18 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
 #define	EVP_CIPHER_block_size_CFB	1
 #define	EVP_CIPHER_block_size_CTR	1
 
-typedef struct hw_cipher_data {
-  union {
-    double align;
-    AES_KEY ks;
-  } ks;
-  block128_f block;
-  union {
-    cbc128_f cbc;
-    ctr128_f ctr;
-  } stream;
-} HW_Cipher_Data;
+#define GETU32(pc) (\
+	    ((unsigned int)(pc)[0] << 24) ^ \
+	    ((unsigned int)(pc)[1] << 16) ^ \
+	    ((unsigned int)(pc)[2] <<  8) ^ \
+	    ((unsigned int)(pc)[3]))
+
+typedef struct AES_Cipher_Data {
+  AES_KEY ks;
+  unsigned int mode;
+  unsigned int enc;
+  unsigned int key_len;
+} AES_Cipher_Data;
 
 typedef struct SM1_Cipher_Data {
   AES_KEY ks;

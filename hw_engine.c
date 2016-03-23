@@ -89,11 +89,7 @@ static int digests(ENGINE *e, const EVP_MD **digest,
 /* These are the function prototypes, implemented in hw_aes.c */
 extern int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 			const unsigned char *iv, int enc);
-extern int aes_cbc_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
-			  const unsigned char *in, size_t len);
-extern int aes_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
-			  const unsigned char *in, size_t len);
-extern int aes_cfb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+extern int aes_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 			  const unsigned char *in, size_t len);
 
 /* AES, use macro here to make the code clean */
