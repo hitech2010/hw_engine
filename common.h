@@ -20,6 +20,7 @@
 #define REG_HASH_PORT_HIG	__REG(reg_base + 0x262*4)
 #define REG_HASH_PORT_LOW	__REG(reg_base + 0x261*4)
 #define REG_AES		__REG(reg_base + 0x29a*4)
+#define REG_SM4		__REG(reg_base + 0x29a*4)
 
 #define REG_MSG(id)	__REG(reg_base + 0x279*4 + id * 4)
 #define REG_HASH(id)	__REG(reg_base + 0x289*4 + id * 4)

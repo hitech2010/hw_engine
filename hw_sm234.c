@@ -142,13 +142,13 @@ int sm4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 
   dat->key_len = 0;
 
-  REG_AES = BC_INI(2, 0, enc, mode, 0);
+  REG_SM4 = BC_INI(2, 0, enc, mode, 0);
 
   for (i = 0; i < 4; i++)
     REG_KEY(i) = GETU32(key + i * 4);
 
   // Key expension
-  REG_AES = KEXP(2, 0, enc, mode, 0);
+  REG_SM4 = KEXP(2, 0, enc, mode, 0);
   
   if (!mode) {
     for (i = 0; i < 4; i++)
@@ -176,7 +176,7 @@ int sm4_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
       REG_TEXT(j) = tmp;
     }
 
-    REG_AES = ED(2, 0, dat->enc, dat->mode, 0, 0);
+    REG_SM4 = ED(2, 0, dat->enc, dat->mode, 0, 0);
     int a[5];
     a[4] = REG_RESULT(0);
     a[3] = REG_RESULT(1);
