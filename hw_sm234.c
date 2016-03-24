@@ -53,7 +53,7 @@ static void sm3_transform(const void *buffer, int last, size_t last_len)
   const unsigned char *p = buffer;
   for (i = 0; i < 16; i++) {
     tmp = (p[i*4] << 24) + (p[i*4+1] << 16) + (p[i*4+2] << 8) + p[i*4+3];
-    *(unsigned int *)(reg_base + 0x9e4 + i*4) = tmp;
+    REG_MSG(i) = tmp;
   }
 
   if (last == 0) {
@@ -115,7 +115,7 @@ static int my_sm3_final(EVP_MD_CTX *ctx, unsigned char *md)
   }
 
   for (i = 0; i < 8; i++) {
-    val = *(unsigned int *)(reg_base + 0xa24 + i*4);
+    val = REG_HASH(i);
     md[i*4] =   (val >> 24) & 0xff;
     md[i*4+1] = (val >> 16) & 0xff;
     md[i*4+2] = (val >> 8 ) & 0xff;

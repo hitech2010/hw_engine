@@ -21,6 +21,8 @@
 #define REG_HASH_PORT_LOW	__REG(reg_base + 0x261*4)
 #define REG_AES		__REG(reg_base + 0x29a*4)
 
+#define REG_MSG(id)	__REG(reg_base + 0x279*4 + id * 4)
+#define REG_HASH(id)	__REG(reg_base + 0x289*4 + id * 4)
 #define REG_KEY(id)	__REG(reg_base + 0x2a0*4 + id * 4)
 #define REG_IV(id)	__REG(reg_base + 0x2ac*4 + id * 4)
 #define REG_TEXT(id)	__REG(reg_base + 0x2a8*4 + id * 4)
