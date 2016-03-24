@@ -98,28 +98,28 @@ static int my_sm3_final(EVP_MD_CTX *ctx, unsigned char *md)
 
   if (m < 56) { // the last block
     tmp[m] = 0x80;
-    tmp[60] = ((len << 3) & 0xff000000) >> 24;
-    tmp[61] = ((len << 3) & 0x00ff0000) >> 16;
-    tmp[62] = ((len << 3) & 0x0000ff00) >> 8;
-    tmp[63] = ((len << 3) & 0x000000ff);
+    tmp[60] = ((len << 3) >> 24) & 0xff;
+    tmp[61] = ((len << 3) >> 16) & 0xff;
+    tmp[62] = ((len << 3) >> 8 ) & 0xff;
+    tmp[63] = ((len << 3)        & 0xff);
     sm3_transform(tmp, 1, m << 3);
   } else {
     tmp[m] = 0x80;
     sm3_transform(tmp, 0, 0); // the second last
     memset(tmp, 0, sizeof(tmp));
-    tmp[60] = ((len << 3) & 0xff000000) >> 24;
-    tmp[61] = ((len << 3) & 0x00ff0000) >> 16;
-    tmp[62] = ((len << 3) & 0x0000ff00) >> 8;
-    tmp[63] = ((len << 3) & 0x000000ff);
+    tmp[60] = ((len << 3) >> 24) & 0xff;
+    tmp[61] = ((len << 3) >> 16) & 0xff;
+    tmp[62] = ((len << 3) >> 8 ) & 0xff;
+    tmp[63] = ((len << 3)        & 0xff);
     sm3_transform(tmp, 1, m << 3);
   }
 
   for (i = 0; i < 8; i++) {
     val = *(unsigned int *)(reg_base + 0xa24 + i*4);
-    md[i*4] = (val & 0xff000000) >> 24;
-    md[i*4+1] = (val & 0x00ff0000) >> 16;
-    md[i*4+2] = (val & 0x0000ff00) >> 8;
-    md[i*4+3] = (val & 0x000000ff);
+    md[i*4] =   (val >> 24) & 0xff;
+    md[i*4+1] = (val >> 16) & 0xff;
+    md[i*4+2] = (val >> 8 ) & 0xff;
+    md[i*4+3] = (val      ) & 0xff;
   }
 
   return 1;
