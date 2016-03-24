@@ -106,10 +106,13 @@ DECLARE_AES_EVP(256,cbc,CBC);
 DECLARE_AES_EVP(256,cfb,CFB);
 
 /* SM4 */
-static EVP_CIPHER sm4_ecb;
-static EVP_CIPHER sm4_cbc;
-static EVP_CIPHER sm4_cfb;
-extern void sm4_init(EVP_CIPHER *, int mode);
+extern int sm4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
+			const unsigned char *iv, int enc);
+extern int sm4_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+			 const unsigned char *in, size_t len);
+DECLARE_SM4_EVP(128,ecb,ECB);
+DECLARE_SM4_EVP(128,cbc,CBC);
+DECLARE_SM4_EVP(128,cfb,CFB);
 #endif
 
 #if IS_USBKEY
@@ -209,13 +212,13 @@ static int ciphers(ENGINE *e, const EVP_CIPHER **cipher,
   
   /* SM4 ciphers */
   case NID_sms4_ecb:
-    *cipher = &sm4_ecb;
+    *cipher = &sm4_128_ecb;
     break;
   case NID_sms4_cbc:
-    *cipher = &sm4_cbc;
+    *cipher = &sm4_128_cbc;
     break;
   case NID_sms4_cfb128:
-    *cipher = &sm4_cfb;
+    *cipher = &sm4_128_cfb;
     break;
 #endif
 
@@ -287,10 +290,6 @@ static int cryptop_init(ENGINE *e)
 
   /* ciphers */
   // The ciphers are initialized with the DECLARE_AES_EVP macro
-  // INIT SM4
-  sm4_init(&sm4_ecb, SM4_ECB);
-  sm4_init(&sm4_cbc, SM4_CBC);
-  sm4_init(&sm4_cfb, SM4_CFB);
 
   /* rsa */
   engine_rsa_init(&hw_rsa);

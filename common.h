@@ -5,6 +5,7 @@
 #include <openssl/aes.h>
 #include <openssl/modes.h>
 #include <openssl/err.h>
+#include <openssl/sms4.h>
 
 #define IS_CRYPTOP	1
 #define IS_USBKEY	0
@@ -60,6 +61,26 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
   NULL				  \
 }
 
+#define DECLARE_SM4_EVP(ksize, lmode, umode)	\
+static const EVP_CIPHER sm4_##ksize##_##lmode = {	\
+  NID_sms4##_##lmode,	  	  \
+  EVP_CIPHER_block_size_##umode,  \
+  16,				  \
+  16,				  \
+  0 | EVP_CIPH_##umode##_MODE,	  \
+  sm4_init_key,			  \
+  sm4_do_cipher,		  \
+  NULL,				  \
+  sizeof(SM4_Cipher_Data),	  \
+  EVP_CIPHER_set_asn1_iv,	  \
+  EVP_CIPHER_get_asn1_iv,	  \
+  NULL,				  \
+  NULL				  \
+}
+
+#define NID_sms4_cfb NID_sms4_cfb128
+#define NID_sms4_ofb NID_sms4_ofb128
+
 #define NID_aes_128_cfb NID_aes_128_cfb128
 #define NID_aes_128_ofb NID_aes_128_ofb128
 
@@ -99,6 +120,13 @@ typedef struct AES_Cipher_Data {
   unsigned int enc;
   unsigned int key_len;
 } AES_Cipher_Data;
+
+typedef struct SM4_Cipher_Data {
+  sms4_key_t   ks;
+  unsigned int mode;
+  unsigned int enc;
+  unsigned int key_len;
+} SM4_Cipher_Data;
 
 typedef struct SM1_Cipher_Data {
   AES_KEY ks;
