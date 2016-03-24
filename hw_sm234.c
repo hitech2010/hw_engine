@@ -57,11 +57,11 @@ static void sm3_transform(const void *buffer, int last, size_t last_len)
   }
 
   if (last == 0) {
-    *(unsigned int *)(reg_base + 0x988) = 0x80000;
-    *(unsigned int *)(reg_base + 0x984) = 0xf0000001;
+    REG_HASH_PORT_HIG = 0x80000;
+    REG_HASH_PORT_LOW = 0xf0000001;
   } else {
-    *(unsigned int *)(reg_base + 0x988) = 0x80000;
-    *(unsigned int *)(reg_base + 0x984) = 0xf0004001 | (last_len << 4);
+    REG_HASH_PORT_HIG = 0x80000;
+    REG_HASH_PORT_LOW = 0xf0004001 | (last_len << 4);
     usleep(1);
   }
 }

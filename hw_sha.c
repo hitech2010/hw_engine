@@ -74,11 +74,11 @@ static void sha1_transform(const void *buffer, int last, size_t last_len)
   }
 
   if (last == 0) {	// not the last one
-    *(unsigned int *)(reg_base + 0x988) = 0x80000;
-    *(unsigned int *)(reg_base + 0x984) = 0xf0000009;
+    REG_HASH_PORT_HIG = 0x80000;
+    REG_HASH_PORT_LOW = 0xf0000009;
   } else {	// the last one
-    *(unsigned int *)(reg_base + 0x988) = 0x80000;
-    *(unsigned int *)(reg_base + 0x984) = 0xf0004009 | (last_len << 4);
+    REG_HASH_PORT_HIG = 0x80000;
+    REG_HASH_PORT_LOW = 0xf0004009 | (last_len << 4);
     usleep(1);
   }
 }
@@ -151,10 +151,9 @@ static int sha256_init(EVP_MD_CTX *ctx)
   c->Nl = 0;
   c->Nh = 0;
   memset(c->data, 0, sizeof(c->data));
-  //c->md_len = SHA256_DIGEST_LENGTH;
   
   REG_MODE = 0x10;
-  //*(unsigned int *)(reg_base + 0x920) = 0x10;
+
   return 1;
 }
 
@@ -169,11 +168,11 @@ static void sha256_transform(const void *buffer, int last, size_t last_len)
   }
 
   if (last == 0) {
-    *(unsigned int *)(reg_base + 0x988) = 0x80000;
-    *(unsigned int *)(reg_base + 0x984) = 0xf0000005;
+    REG_HASH_PORT_HIG = 0x80000;
+    REG_HASH_PORT_LOW = 0xf0000005;
   } else {
-    *(unsigned int *)(reg_base + 0x988) = 0x80000;
-    *(unsigned int *)(reg_base + 0x984) = 0xf0004005 | (last_len << 4);
+    REG_HASH_PORT_HIG = 0x80000;
+    REG_HASH_PORT_LOW = 0xf0004005 | (last_len << 4);
     usleep(1);
   }
 }
