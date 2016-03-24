@@ -226,7 +226,7 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md)
   }
 
   for (i = 0; i < 8; i++) {
-    val = REG_PORT(i);
+    val = REG_HASH(i);
     md[i*4] =   (val >> 24) & 0xff;
     md[i*4+1] = (val >> 16) & 0xff;
     md[i*4+2] = (val >> 8 ) & 0xff;
