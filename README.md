@@ -39,3 +39,9 @@ Now since the cryptop can only use the HASH_PORT, I must switch to HUAHONG USBKe
 # GMSSL
 It's very lucky that I found another OpenSSL branch that supports SM2/SM3/SM4.
 It is based on the branch 1.0.2d, which is fresher than my default openssl-1.0.1f, so I switch to it, which make my work more easy.
+
+
+# How to test using the buildin tool 'speed'
+
+    $ openssl speed -evp sm3 -engine hw_engine
+    $ openssl speed -evp sms4-ecb -engine hw_engine
