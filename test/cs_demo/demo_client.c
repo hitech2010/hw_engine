@@ -22,16 +22,13 @@
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 
-#define CA_LIST "ca-cert.pem"
 #define HOST "localhost"
 #define PORT 4433
 #define BUFSIZE 1024
 
 #define CERTFILE "server-cert.pem"
-#define PASSWORD "password"
 
 BIO *bio_err = NULL;
-static char *pass;
 
 void read_write(SSL *ssl, int sock);
 
