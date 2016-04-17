@@ -1,0 +1,12 @@
+#server side
+##openssl s_server -cert server-sert.pem -key server-key.pem -CAfile ca-cert.pem -tls1
+openssl s_server -cert server-sert.pem -key server-key.pem -CAfile ca-cert.pem
+
+#client side
+openssl s_client -tls1 -cipher "AES128-SHA256"
+
+#ssldump
+ssldump -i lo -A
+
+#certificate related
+https://github.com/zhjwpku/myscripts/blob/master/spice/self-signed_cert.sh
