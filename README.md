@@ -39,4 +39,4 @@ Now since the cryptop can only use the HASH_PORT, I must switch to HUAHONG USBKe
 # How to test using the buildin tool 'speed'
 
     $ openssl speed -evp sm3 -engine hw_engine
-    $ openssl speed -evp sms4-ecb -engine hw_engine
+    $ openssl speed -evp sm4-cbc -engine hw_engine
