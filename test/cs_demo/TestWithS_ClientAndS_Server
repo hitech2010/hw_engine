@@ -4,6 +4,7 @@ openssl s_server -cert server-sert.pem -key server-key.pem -CAfile ca-cert.pem
 
 #client side
 openssl s_client -tls1 -cipher "AES128-SHA256" -engine hw_engine
+openssl s_client -connect 192.168.1.105:4433
 
 #ssldump
 ssldump -i lo -A
