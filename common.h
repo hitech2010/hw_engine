@@ -55,9 +55,9 @@ static const EVP_CIPHER aes_##ksize##_##lmode = {	\
   AES_BLOCK_SIZE,		  \
   0 | EVP_CIPH_##umode##_MODE,	  \
   aes_init_key,			  \
-  aes_cipher,		  \
+  aes_cipher,			  \
   NULL,				  \
-  sizeof(AES_Cipher_Data),	  \
+  0,				  \
   EVP_CIPHER_set_asn1_iv,	  \
   EVP_CIPHER_get_asn1_iv,	  \
   NULL,				  \
@@ -74,7 +74,7 @@ static const EVP_CIPHER sm4_##ksize##_##lmode = {	\
   sm4_init_key,			  \
   sm4_do_cipher,		  \
   NULL,				  \
-  sizeof(SM4_Cipher_Data),	  \
+  0,				  \
   EVP_CIPHER_set_asn1_iv,	  \
   EVP_CIPHER_get_asn1_iv,	  \
   NULL,				  \
@@ -117,19 +117,11 @@ static const EVP_CIPHER sm4_##ksize##_##lmode = {	\
 	    ((unsigned int)(pc)[2] <<  8) ^ \
 	    ((unsigned int)(pc)[3]))
 
-typedef struct AES_Cipher_Data {
-  AES_KEY ks;
-  unsigned int mode;
-  unsigned int enc;
-  unsigned int key_len;
-} AES_Cipher_Data;
-
-typedef struct SM4_Cipher_Data {
-  sms4_key_t   ks;
-  unsigned int mode;
-  unsigned int enc;
-  unsigned int key_len;
-} SM4_Cipher_Data;
+#define PUTU32(st, ct) { \
+	    (ct)[0] = (unsigned char)((st) >> 24); \
+	    (ct)[1] = (unsigned char)((st) >> 16); \
+	    (ct)[2] = (unsigned char)((st) >>  8); \
+	    (ct)[3] = (unsigned char)(st); }
 
 typedef struct SM1_Cipher_Data {
   AES_KEY ks;
