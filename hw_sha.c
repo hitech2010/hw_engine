@@ -69,8 +69,7 @@ static void sha1_transform(const void *buffer, int last, size_t last_len)
   unsigned int tmp;
   const unsigned char *p = buffer;
   for(i = 0; i < 16; i++) {
-    tmp = (p[i*4] << 24) + (p[i*4+1] << 16) + (p[i*4+2] << 8) + p[i*4+3];
-    REG_MSG(i) = tmp;
+    REG_MSG(i) = GETU32(p + i * 4);
   }
 
   if (last == 0) {	// not the last one
@@ -96,7 +95,7 @@ static int sha1_update(EVP_MD_CTX *ctx, const void *data, size_t len)
   }
 
   c->Nl = m;
-  c->Nh = len;
+  c->Nh += n;
   if (m > 0) {
     memcpy(c->data, p + i*64, m);
   }
@@ -109,36 +108,25 @@ static int sha1_final(EVP_MD_CTX *ctx, unsigned char *md)
   SHA_CTX *c = (SHA_CTX *)(ctx->md_data);
   unsigned char *tmp = (unsigned char *)(c->data);
   int m = c->Nl;
-  int len = c->Nh;
+  int len = ((c->Nh * 64) + m) << 3;
   int i = 0;
   int val;
 
   if (m < 56) {
     tmp[m] = 0x80;
-    
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sha1_transform(tmp, 1, m << 3);	// the last one
   } else {
     tmp[m] = 0x80;
     sha1_transform(tmp, 0, 0);	// not the last one
     memset(tmp, 0, sizeof(tmp));
-    
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sha1_transform(tmp, 1, 0);	// the last one
   }
 
   for (i = 0; i < 5; i++) {
     val = REG_HASH(i);
-    md[i*4] =   (val >> 24) & 0xff;
-    md[i*4+1] = (val >> 16) & 0xff;
-    md[i*4+2] = (val >> 8 ) & 0xff;
-    md[i*4+3] = (val      ) & 0xff;
+    PUTU32(val, md + i * 4);
   }
 
   return 1;
@@ -163,8 +151,7 @@ static void sha256_transform(const void *buffer, int last, size_t last_len)
   unsigned int tmp;
   const unsigned char *p = buffer;
   for (i = 0; i < 16; i++) {
-    tmp = (p[i*4] << 24) + (p[i*4+1] << 16) + (p[i*4+2] << 8) + p[i*4+3];
-    REG_MSG(i) = tmp;
+    REG_MSG(i) = GETU32(p + i * 4);
   }
 
   if (last == 0) {
@@ -190,7 +177,7 @@ static int sha256_update(EVP_MD_CTX *ctx, const void *data, size_t len)
   }
 
   c->Nl = m;
-  c->Nh = len;
+  c->Nh += len;
   if (m > 0) {
     memcpy(c->data, p + i*64, m);
   }
@@ -203,34 +190,25 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md)
   SHA256_CTX *c = (SHA256_CTX *)(ctx->md_data);
   unsigned char *tmp = (unsigned char *)(c->data);
   int m = c->Nl;
-  int len = c->Nh;
+  int len = (c->Nh + m) << 3;
   int i = 0;
   int val;
 
   if (m < 56) { // the last block
     tmp[m] = 0x80;
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sha256_transform(tmp, 1, m << 3);
   } else {
     tmp[m] = 0x80;
     sha256_transform(tmp, 0, 0); // the second last
     memset(tmp, 0, sizeof(tmp));
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sha256_transform(tmp, 1, m << 3);
   }
 
   for (i = 0; i < 8; i++) {
     val = REG_HASH(i);
-    md[i*4] =   (val >> 24) & 0xff;
-    md[i*4+1] = (val >> 16) & 0xff;
-    md[i*4+2] = (val >> 8 ) & 0xff;
-    md[i*4+3] = (val      ) & 0xff;
+    PUTU32(val, md + i * 4);
   }
 
   return 1;

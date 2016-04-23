@@ -31,13 +31,14 @@ int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
   for (i = 0; i < (4 + key_len * 2); i++)
     REG_KEY(i) = GETU32(key + i * 4);
 
-  // Key expension
-  REG_AES = KEXP(0, key_len, enc, mode, 0);
-  
   if (!mode) {
     for (i = 0; i < 4; i++)
       REG_IV(i) = GETU32(iv + i * 4);
   }
+
+  // Key expension
+  REG_AES = KEXP(0, key_len, enc, mode, 0);
+  
   return 1;
 }
 

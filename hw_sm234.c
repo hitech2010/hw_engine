@@ -49,11 +49,9 @@ static int my_sm3_init(EVP_MD_CTX *ctx)
 static void sm3_transform(const void *buffer, int last, size_t last_len)
 {
   int i = 0;
-  unsigned int tmp;
   const unsigned char *p = buffer;
   for (i = 0; i < 16; i++) {
-    tmp = (p[i*4] << 24) + (p[i*4+1] << 16) + (p[i*4+2] << 8) + p[i*4+3];
-    REG_MSG(i) = tmp;
+    REG_MSG(i) = GETU32(p + i * 4);
   }
 
   if (last == 0) {
@@ -78,8 +76,8 @@ static int my_sm3_update(EVP_MD_CTX *ctx, const void *data, size_t len)
     sm3_transform(p + i*64, 0, 0);
   }
 
-  c->nblocks = m;
-  c->num = len;
+  c->nblocks += n;
+  c->num = m;
   if (m > 0) {
     memcpy(c->block, p + i*64, m);
   }
@@ -91,35 +89,26 @@ static int my_sm3_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
   sm3_ctx_t *c = (sm3_ctx_t *)(ctx->md_data);
   unsigned char *tmp = (unsigned char *)(c->block);
-  int m = c->nblocks;
-  int len = c->num;
+  int m = c->num;
+  int len = ((c->nblocks * 64) + m) << 3;
   int i = 0;
   int val;
 
   if (m < 56) { // the last block
     tmp[m] = 0x80;
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sm3_transform(tmp, 1, m << 3);
   } else {
     tmp[m] = 0x80;
     sm3_transform(tmp, 0, 0); // the second last
     memset(tmp, 0, sizeof(tmp));
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sm3_transform(tmp, 1, m << 3);
   }
 
   for (i = 0; i < 8; i++) {
     val = REG_HASH(i);
-    md[i*4] =   (val >> 24) & 0xff;
-    md[i*4+1] = (val >> 16) & 0xff;
-    md[i*4+2] = (val >> 8 ) & 0xff;
-    md[i*4+3] = (val      ) & 0xff;
+    PUTU32(val, md + i * 4);
   }
 
   return 1;
