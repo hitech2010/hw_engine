@@ -49,11 +49,9 @@ static int my_sm3_init(EVP_MD_CTX *ctx)
 static void sm3_transform(const void *buffer, int last, size_t last_len)
 {
   int i = 0;
-  unsigned int tmp;
   const unsigned char *p = buffer;
   for (i = 0; i < 16; i++) {
-    tmp = (p[i*4] << 24) + (p[i*4+1] << 16) + (p[i*4+2] << 8) + p[i*4+3];
-    REG_MSG(i) = tmp;
+    REG_MSG(i) = GETU32(p + i * 4);
   }
 
   if (last == 0) {
@@ -78,8 +76,8 @@ static int my_sm3_update(EVP_MD_CTX *ctx, const void *data, size_t len)
     sm3_transform(p + i*64, 0, 0);
   }
 
-  c->nblocks = m;
-  c->num = len;
+  c->nblocks += n;
+  c->num = m;
   if (m > 0) {
     memcpy(c->block, p + i*64, m);
   }
@@ -91,35 +89,26 @@ static int my_sm3_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
   sm3_ctx_t *c = (sm3_ctx_t *)(ctx->md_data);
   unsigned char *tmp = (unsigned char *)(c->block);
-  int m = c->nblocks;
-  int len = c->num;
+  int m = c->num;
+  int len = ((c->nblocks * 64) + m) << 3;
   int i = 0;
   int val;
 
   if (m < 56) { // the last block
     tmp[m] = 0x80;
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sm3_transform(tmp, 1, m << 3);
   } else {
     tmp[m] = 0x80;
     sm3_transform(tmp, 0, 0); // the second last
     memset(tmp, 0, sizeof(tmp));
-    tmp[60] = ((len << 3) >> 24) & 0xff;
-    tmp[61] = ((len << 3) >> 16) & 0xff;
-    tmp[62] = ((len << 3) >> 8 ) & 0xff;
-    tmp[63] = ((len << 3)        & 0xff);
+    PUTU32(len, tmp+60);
     sm3_transform(tmp, 1, m << 3);
   }
 
   for (i = 0; i < 8; i++) {
     val = REG_HASH(i);
-    md[i*4] =   (val >> 24) & 0xff;
-    md[i*4+1] = (val >> 16) & 0xff;
-    md[i*4+2] = (val >> 8 ) & 0xff;
-    md[i*4+3] = (val      ) & 0xff;
+    PUTU32(val, md + i * 4);
   }
 
   return 1;
@@ -131,17 +120,10 @@ int sm4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 {
   int i;
   unsigned int mode;
-  SM4_Cipher_Data *dat = (SM4_Cipher_Data *)(ctx->cipher_data);
   
-  dat->mode = mode;
-  dat->enc = enc;
-
   mode = EVP_CIPHER_CTX_mode(ctx) - 1;
 
   REG_MODE = 0x20;
-
-  dat->key_len = 0;
-
   REG_SM4 = BC_INI(2, 0, enc, mode, 0);
 
   for (i = 0; i < 4; i++)
@@ -161,22 +143,19 @@ int sm4_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 		  const unsigned char *in, size_t len)
 {
   int block;
-  int last;
   int i, j;
-  unsigned int tmp;
-  int q = 0;
-  SM4_Cipher_Data *dat = (SM4_Cipher_Data *)(ctx->cipher_data);
+  unsigned int mode;
+  
+  mode = EVP_CIPHER_CTX_mode(ctx) - 1;
 
   block = len / 16;
 
   for (i = 0; i < block; i++) {
     for (j = 0; j < 4; j++) {
-      tmp = (in[i*16 + j*4] << 24) + (in[i*16+j*4 + 1] << 16) \
-      + (in[i*16+j*4+2] << 8) | (in[i*16+j*4+3]);
-      REG_TEXT(j) = tmp;
+      REG_TEXT(j) = GETU32(in + i*16 + j*4);
     }
 
-    REG_SM4 = ED(2, 0, dat->enc, dat->mode, 0, 0);
+    REG_SM4 = ED(2, 0, ctx->encrypt, mode, 0, 0);
     int a[5];
     a[4] = REG_RESULT(0);
     a[3] = REG_RESULT(1);
@@ -185,10 +164,7 @@ int sm4_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     }
 
     for (j = 0; j < 4; j++) {
-      out[i*16+j*4 + 3] = a[j] & 0xff;
-      out[i*16+j*4 + 2] = (a[j] >> 8)  & 0xff;
-      out[i*16+j*4 + 1] = (a[j] >> 16) & 0xff;
-      out[i*16+j*4 + 0] = (a[j] >> 24) & 0xff;
+      PUTU32(a[j], out + 16*i + j*4);
     }
   }
 
