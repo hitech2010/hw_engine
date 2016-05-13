@@ -9,5 +9,9 @@ openssl s_client -connect 192.168.1.105:4433
 #ssldump
 ssldump -i lo -A
 
+#use wireshake capture SSL packages
+dumpcap -i lo '(host ::1 or host 127.0.0.1 and tcp portrange 4430-4433)' -w dump.pcapng
+wireshark -n -r dump.pcapng -o http.ssl.port:443,4430-4433 -o ssl.keylog_file:premaster.txt -Y ssl
+
 #certificate related
 https://github.com/zhjwpku/myscripts/blob/master/spice/self-signed_cert.sh
