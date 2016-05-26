@@ -72,13 +72,11 @@ static void sha1_transform(const void *buffer, int last, size_t last_len)
     REG_MSG(i) = GETU32(p + i * 4);
   }
 
+  REG_HASH_PORT_HIG = 0x80000;
   if (last == 0) {	// not the last one
-    REG_HASH_PORT_HIG = 0x80000;
     REG_HASH_PORT_LOW = 0xf0000009;
   } else {	// the last one
-    REG_HASH_PORT_HIG = 0x80000;
     REG_HASH_PORT_LOW = 0xf0004009 | (last_len << 4);
-    usleep(1);
   }
 }
 
@@ -124,6 +122,7 @@ static int sha1_final(EVP_MD_CTX *ctx, unsigned char *md)
     sha1_transform(tmp, 1, 0);	// the last one
   }
 
+  val = REG_HASH(0);
   for (i = 0; i < 5; i++) {
     val = REG_HASH(i);
     PUTU32(val, md + i * 4);
@@ -154,13 +153,11 @@ static void sha256_transform(const void *buffer, int last, size_t last_len)
     REG_MSG(i) = GETU32(p + i * 4);
   }
 
+  REG_HASH_PORT_HIG = 0x80000;
   if (last == 0) {
-    REG_HASH_PORT_HIG = 0x80000;
     REG_HASH_PORT_LOW = 0xf0000005;
   } else {
-    REG_HASH_PORT_HIG = 0x80000;
     REG_HASH_PORT_LOW = 0xf0004005 | (last_len << 4);
-    usleep(1);
   }
 }
 
@@ -205,7 +202,8 @@ static int sha256_final(EVP_MD_CTX *ctx, unsigned char *md)
     PUTU32(len, tmp+60);
     sha256_transform(tmp, 1, m << 3);
   }
-
+  
+  val = REG_HASH(0);
   for (i = 0; i < 8; i++) {
     val = REG_HASH(i);
     PUTU32(val, md + i * 4);
