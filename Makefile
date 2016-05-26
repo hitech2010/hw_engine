@@ -225,7 +225,7 @@ AUTOMAKE = ${SHELL} /root/hw_engine/missing automake-1.14
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2  
+CFLAGS = -g -O3
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
